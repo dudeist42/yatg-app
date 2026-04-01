@@ -1,0 +1,10 @@
+networks:
+  yatg-network:
+    driver: bridge
+    name: yatg-network
+
+volumes:
+  postgres_data_dev:
+    name: yatg-postgres-data-dev
+  postgres_data_prod:
+    name: yatg-postgres-data-prod

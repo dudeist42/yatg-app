@@ -1,0 +1,68 @@
+services:
+  
+  postgres-prod:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}"
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - yatg-network
+    profiles:
+      - all
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-prod:
+    container_name: yatg-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: production
+    environment:
+      - PORT=${BACKEND_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - TMDB_API_URL=${TMDB_API_URL}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - TMDB_IMAGE_BASE_URL=${TMDB_IMAGE_BASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=${NODE_ENV}
+    profiles:
+      - all
+      - backend
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    networks:
+      - yatg-network
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend-prod:
+    container_name: yatg-frontend-prod
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: production
+    environment:
+      - PORT=${FRONTEND_PORT}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NODE_ENV=${NODE_ENV}
+    profiles:
+      - all
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - yatg-network
+    depends_on:
+      - backend-prod
+    restart: unless-stopped
