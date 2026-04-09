@@ -12,6 +12,7 @@ services:
     networks:
       - yatg-network
     profiles:
+      - db
       - all
       - backend
     healthcheck:
@@ -28,11 +29,21 @@ services:
       target: development
     environment:
       - PORT=${BACKEND_PORT}
+      - BACKEND_HEALTH_PORT=${BACKEND_HEALTH_PORT}
       - DATABASE_URL=${DATABASE_URL}
       - TMDB_API_URL=${TMDB_API_URL}
       - TMDB_API_KEY=${TMDB_API_KEY}
       - TMDB_IMAGE_BASE_URL=${TMDB_IMAGE_BASE_URL}
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - PASSWORD_PWNED_VALIDATION_ENABLED=${PASSWORD_PWNED_VALIDATION_ENABLED}
+      - PASSWORD_PWNED_VALIDATATION_CACHE_TTL=${PASSWORD_PWNED_VALIDATATION_CACHE_TTL}
+      - PASSWORD_PWNED_MAX_CACHE_RECORDS=${PASSWORD_PWNED_MAX_CACHE_RECORDS}
+      - PASSWORD_PWNED_HIBP_URL=${PASSWORD_PWNED_HIBP_URL}
+      - LOG_LEVEL=${LOG_LEVEL}
       - NODE_ENV=${NODE_ENV}
     profiles:
       - all
@@ -47,7 +58,12 @@ services:
     depends_on:
       postgres-dev:
         condition: service_healthy
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--tries=1", "--spider", "http://backend-dev:${BACKEND_HEALTH_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   frontend-dev:
     container_name: yatg-frontend-dev
@@ -69,5 +85,5 @@ services:
     networks:
       - yatg-network
     depends_on:
-      - backend-dev
-    restart: unless-stopped
+      backend-dev:
+        condition: service_healthy

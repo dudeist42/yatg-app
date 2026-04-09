@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { DrizzleService } from '../drizzle/drizzle.service';
+import { DbNewUser, DbUser } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import * as bcrypt from 'bcrypt';
+import { schema } from '../../db';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private drizzle: DrizzleService) {}
+
+  async createUser(values: DbNewUser) {
+    const [user] = await this.drizzle.db
+      .insert(schema.users)
+      .values(values)
+      .returning();
+
+    return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findByUsername(username: string) {
+    const [user] = await this.drizzle.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.username, username))
+      .limit(1);
+
+    return user;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findById(id: string) {
+    const [user] = await this.drizzle.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async validatePassword(user: DbUser, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.password);
   }
 }

@@ -23,7 +23,7 @@ WORKDIR /app/backend
 
 EXPOSE $PORT
 
-CMD ["pnpm", "start:dev"]
+CMD ["sh", "-c", "pnpm drizzle:migrate:dev && pnpm start:dev"]
 
 # --- BUILDER ---
 FROM base AS builder
@@ -48,6 +48,7 @@ RUN addgroup -g 1001 -S nodejs && \
 COPY --from=builder --chown=nodejs:nodejs /app/backend/node_modules /app/backend/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/backend/dist /app/backend/dist
 COPY --from=builder --chown=nodejs:nodejs /app/backend/package.json /app/backend/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/backend/drizzle /app/backend/drizzle
 
 WORKDIR /app/backend
 
@@ -58,4 +59,4 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 EXPOSE $PORT
 
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "pnpm drizzle:migrate:prod && node dist/main"]

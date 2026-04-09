@@ -7,9 +7,14 @@ PROD_COMPOSE_ALL = ${PROD_COMPOSE} --profile all
 DEV_COMPOSE_BE = ${DEV_COMPOSE} --profile backend
 PROD_COMPOSE_BE = ${PROD_COMPOSE} --profile backend
 
-.PHONY: dev-up dev-down dev-logs dev-build dev-clean dev-up-be dev-down-be dev-logs-be dev-build-be dev-clean-be prod-up prod-down prod-logs prod-build prod-clean
+DEV_COMPOSE_DB = ${DEV_COMPOSE} --profile db
 
-# Dev
+.PHONY: dev-up dev-down dev-logs dev-build dev-clean dev-rebuild \
+			 	dev-up-be dev-down-be dev-logs-be dev-build-be dev-clean-be dev-rebuild-be \
+				dev-up-db dev-down-db \
+				prod-up prod-down prod-logs prod-build prod-clean
+
+# === DEV ===
 dev-up:
 	$(DEV_COMPOSE_ALL) up -d
 
@@ -25,7 +30,10 @@ dev-logs:
 dev-build:
 	$(DEV_COMPOSE_ALL) up -d --build
 
-# Dev Backend
+dev-rebuild:
+	$(DEV_COMPOSE_ALL) up -d --force-recreate --build
+
+# === DEV BACKEND ===
 dev-up-be:
 	$(DEV_COMPOSE_BE) up -d
 
@@ -41,7 +49,18 @@ dev-logs-be:
 dev-build-be:
 	$(DEV_COMPOSE_BE) up -d --build
 
-# Prod
+dev-rebuild-be:
+	$(DEV_COMPOSE_BE) up -d --build --force-recreate
+
+
+# === DEV DATABASE ===
+dev-up-db:
+	${DEV_COMPOSE_DB} up -d
+
+dev-down-db:
+	${DEV_COMPOSE_DB} down
+
+# === PROD ===
 prod-up:
 	$(PROD_COMPOSE_ALL) up -d
 
