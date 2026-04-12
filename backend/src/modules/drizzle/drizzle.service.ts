@@ -2,8 +2,16 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { schema } from '../../db';
+import { PgTransaction } from 'drizzle-orm/pg-core';
+import { PgQueryResultHKT } from 'drizzle-orm/pg-core';
+import { ExtractTablesWithRelations } from 'drizzle-orm';
 
 export type TDb = ReturnType<typeof drizzle<typeof schema>>;
+export type TDbTransaction = PgTransaction<
+  PgQueryResultHKT,
+  typeof schema,
+  ExtractTablesWithRelations<typeof schema>
+>;
 
 @Injectable()
 export class DrizzleService implements OnModuleDestroy {

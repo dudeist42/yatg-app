@@ -5,7 +5,7 @@ import { type ConfigType } from '@nestjs/config';
 import { authConfig } from '../auth.config';
 import { JwtPayload } from './types';
 import { type FastifyRequest } from 'fastify';
-import { SessionsService } from '../../../sessions/sessions.service';
+import { SessionsRepository } from '../../sessions/sessions.repository';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -15,7 +15,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(
     @Inject(authConfig.KEY)
     readonly config: ConfigType<typeof authConfig>,
-    private sessionsService: SessionsService,
+    private sessionsRepository: SessionsRepository,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -27,7 +27,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(payload: JwtPayload) {
-    const session = await this.sessionsService.findSessionByRefreshTokenId(
+    const session = await this.sessionsRepository.findSessionByRefreshTokenId(
       payload.jti,
     );
 

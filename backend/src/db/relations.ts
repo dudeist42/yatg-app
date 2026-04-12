@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { sessions, userMovies, users } from './schema';
+import { movies, sessions, userMovies, users } from './schema';
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -7,15 +7,23 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
-  users: one(users, {
+  user: one(users, {
     fields: [sessions.userId],
     references: [users.id],
   }),
 }));
 
+export const moviesRelations = relations(movies, ({ many }) => ({
+  userMovies: many(userMovies),
+}));
+
 export const userMoviesRelations = relations(userMovies, ({ one }) => ({
-  users: one(users, {
+  user: one(users, {
     fields: [userMovies.userId],
     references: [users.id],
+  }),
+  movie: one(movies, {
+    fields: [userMovies.movieId],
+    references: [movies.id],
   }),
 }));

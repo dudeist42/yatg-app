@@ -9,7 +9,7 @@ import { JwtStrategy } from './strategies/jwt-access.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { PasswordPwndValidationModule } from '../../password-pwnd/password-pwned.module';
 import { UsersModule } from '../../users/users.module';
-import { SessionsModule } from '../../sessions/sessions.module';
+import { SessionsModule } from '../sessions/sessions.module';
 
 @Module({
   imports: [

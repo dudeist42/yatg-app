@@ -8,6 +8,7 @@ import {
   integer,
   check,
   unique,
+  text,
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
 import { VarcharLen } from './types';
@@ -67,6 +68,18 @@ export const sessions = pgTable(
 export type DbSession = typeof sessions.$inferSelect;
 export type DbNewSession = typeof sessions.$inferInsert;
 
+export const movies = pgTable('movies', {
+  id: integer('id').primaryKey(), // tmdb id
+  title: text('title').notNull(),
+  originalTitle: text('original_title').notNull(),
+  posterPath: text('poster_path').notNull(),
+  releaseDate: text('release_date').notNull(),
+  cachedAt: timestamp('cached_at').defaultNow().notNull(),
+});
+
+export type DbMovie = typeof movies.$inferSelect;
+export type DbNewMovie = typeof movies.$inferInsert;
+
 export const userMovies = pgTable(
   'user_movies',
   {
@@ -89,6 +102,11 @@ export const userMovies = pgTable(
       foreignColumns: [users.id],
       name: 'user_movies_user_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [t.movieId],
+      foreignColumns: [movies.id],
+      name: 'user_movies_movie_id_fkey',
+    }),
     index('user_movies_user_id_idx').on(t.userId),
     index('user_movies_movie_id_idx').on(t.movieId),
     unique('user_movies_user_movie_unique').on(t.userId, t.movieId),

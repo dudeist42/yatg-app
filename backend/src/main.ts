@@ -11,10 +11,13 @@ import { getLogLevels } from './common/utils/logger.utils';
 import { useContainer } from 'class-validator';
 import fastifyCookie from '@fastify/cookie';
 import { openApiConfig } from '../configs/openApi';
+import { camelCaseToWords } from './common/utils/string.utils';
 
 const useSwaggerModule = (app: NestFastifyApplication) => {
   const documentFactory = () =>
-    SwaggerModule.createDocument(app, openApiConfig);
+    SwaggerModule.createDocument(app, openApiConfig, {
+      operationIdFactory: (_, methodKey) => camelCaseToWords(methodKey),
+    });
   SwaggerModule.setup('api', app, documentFactory);
 };
 

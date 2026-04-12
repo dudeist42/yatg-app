@@ -9,12 +9,12 @@ import { UsersService } from '../../users/users.service';
 import { v4 as uuidv4 } from 'uuid';
 import { type ConfigType } from '@nestjs/config';
 import { authConfig } from './auth.config';
-import { SessionsService } from '../../sessions/sessions.service';
 import ms from 'ms';
 import { SignUpDto } from './dto/sign-up.dto';
 import bcrypt from 'bcrypt';
 import { SignInDto } from './dto/sign-in.dto';
 import { msToSeconds } from '../../../common/utils/time.utils';
+import { SessionsRepository } from '../sessions/sessions.repository';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
     private config: ConfigType<typeof authConfig>,
     private jwtService: JwtService,
     private usersService: UsersService,
-    private sessionsService: SessionsService,
+    private sessionsRepository: SessionsRepository,
   ) {}
 
   async signUp(dto: SignUpDto, meta: { ip?: string; deviceName?: string }) {
@@ -58,26 +58,23 @@ export class AuthService {
     oldSessionId: string,
     meta: { ip?: string; deviceName?: string },
   ) {
-    await this.sessionsService.deleteSessionById(oldSessionId);
-
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
 
-    return this.createTokenPair(user.id, user.username, meta);
+    return this.createTokenPair(user.id, user.username, {
+      ...meta,
+      id: oldSessionId,
+    });
   }
 
   async signOut(sessionId: string) {
-    await this.sessionsService.deleteSessionById(sessionId);
-  }
-
-  async logoutAll(userId: string, excludeSessionId?: string) {
-    await this.sessionsService.deleteSessionsByUserId(userId, excludeSessionId);
+    await this.sessionsRepository.deleteSessionById(sessionId);
   }
 
   private async createTokenPair(
     userId: string,
     username: string,
-    meta: { ip?: string; deviceName?: string },
+    meta: { ip?: string; deviceName?: string; id?: string },
   ) {
     const refreshTokenId = uuidv4();
     const accessTokenId = uuidv4();
@@ -88,7 +85,8 @@ export class AuthService {
     const accessTokenExpiresAt = new Date(Date.now() + accessTokenExpiresIn);
     const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenExpiresIn);
 
-    await this.sessionsService.saveSession({
+    await this.sessionsRepository.saveSession({
+      id: meta.id,
       userId,
       refreshTokenId,
       accessTokenId,

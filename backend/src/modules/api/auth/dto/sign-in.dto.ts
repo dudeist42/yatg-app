@@ -9,8 +9,3 @@ export class SignInDto {
   @MinLength(12)
   password!: string;
 }
-
-export class SignInResponseDto {
-  accessToken!: string;
-  expiresAt!: Date;
-}

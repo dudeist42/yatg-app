@@ -1,3 +1,12 @@
+CREATE TABLE "movies" (
+	"id" integer PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"original_title" text NOT NULL,
+	"poster_path" text NOT NULL,
+	"release_date" text NOT NULL,
+	"cached_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "user_sessions" (
 	"id" varchar(32) PRIMARY KEY NOT NULL,
 	"user_id" varchar(32) NOT NULL,
@@ -34,6 +43,7 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_movies" ADD CONSTRAINT "user_movies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_movies" ADD CONSTRAINT "user_movies_movie_id_fkey" FOREIGN KEY ("movie_id") REFERENCES "public"."movies"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "user_sessions_expires_at_idx" ON "user_sessions" USING btree ("expires_at");--> statement-breakpoint
 CREATE INDEX "user_sessions_user_id_idx" ON "user_sessions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "user_sessions_refresh_token_id_idx" ON "user_sessions" USING btree ("refresh_token_id");--> statement-breakpoint

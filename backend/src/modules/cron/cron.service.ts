@@ -1,9 +1,9 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { SessionsService } from '../sessions/sessions.service';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { cronConfig } from './cron.config';
 import { type ConfigType } from '@nestjs/config';
 import * as cron from 'cron/dist/job';
+import { SessionsRepository } from '../api/sessions/sessions.repository';
 
 @Injectable()
 export class CronService implements OnModuleInit {
@@ -12,7 +12,7 @@ export class CronService implements OnModuleInit {
     @Inject(cronConfig.KEY)
     private config: ConfigType<typeof cronConfig>,
     private scheduleRegistry: SchedulerRegistry,
-    private sessions: SessionsService,
+    private sessionsRepository: SessionsRepository,
   ) {}
 
   onModuleInit() {
@@ -35,7 +35,7 @@ export class CronService implements OnModuleInit {
   };
 
   cleanupExpiredSessions = async () => {
-    const count = await this.sessions.deleteExpiredSessions();
+    const count = await this.sessionsRepository.deleteExpiredSessions();
 
     this.logger.log(`Deleted "${count}" expired sessions`);
   };

@@ -13,8 +13,3 @@ export class SignUpDto {
   @IsPasswordNotPwned()
   password!: string;
 }
-
-export class SignUpResponseDto {
-  accessToken!: string;
-  expiresAt!: Date;
-}

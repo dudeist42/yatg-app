@@ -64,7 +64,7 @@ export class PasswordPwnedValidationService {
   }
 
   private async getCachedSuffixes(prefix: string) {
-    const suffixes = await this.cache.get<string[]>(`hipb:${prefix}`);
+    const suffixes = await this.cache.get<string[]>(`hibp:${prefix}`);
 
     if (suffixes) {
       return new Set(suffixes);

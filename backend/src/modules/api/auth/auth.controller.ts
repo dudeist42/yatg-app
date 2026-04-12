@@ -9,16 +9,19 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { SignUpDto, SignUpResponseDto } from './dto/sign-up.dto';
-import { type FastifyReply, type FastifyRequest } from 'fastify';
+import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse } from '@nestjs/swagger';
 import Bowser from 'bowser';
-import { SignInDto, SignInResponseDto } from './dto/sign-in.dto';
-import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { type FastifyReply, type FastifyRequest } from 'fastify';
+import { AuthService } from './auth.service';
+import { SignUpDto } from './dto/sign-up.dto';
+import { SignInDto } from './dto/sign-in.dto';
+import { AuthReponse } from './responses/auth.response';
 import { type FastifyRequestJwtRefresh } from './strategies/jwt-refresh.strategy';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { type FastifyRequestJwtAccess } from './strategies/jwt-access.strategy';
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse } from '@nestjs/swagger';
+import { UserResponse } from './responses/user.response';
+import { User } from './entities/user.entity';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -33,12 +36,12 @@ export class AuthController {
 
   @Post('sign-up')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: SignUpResponseDto })
+  @ApiOkResponse({ type: AuthReponse })
   async signUp(
     @Body() dto: SignUpDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-  ) {
+  ): Promise<AuthReponse> {
     const {
       accessToken,
       refreshToken,
@@ -51,17 +54,17 @@ export class AuthController {
       expires: refreshTokenExpiresAt,
     });
 
-    return { accessToken, expiresAt: accessTokenExpiresAt };
+    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
   }
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: SignInResponseDto })
+  @ApiOkResponse({ type: AuthReponse })
   async signIn(
     @Body() dto: SignInDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-  ) {
+  ): Promise<AuthReponse> {
     const {
       accessToken,
       refreshToken,
@@ -74,18 +77,18 @@ export class AuthController {
       expires: refreshTokenExpiresAt,
     });
 
-    return { accessToken, expiresAt: accessTokenExpiresAt };
+    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
   @ApiCookieAuth('refresh-token')
-  @ApiOkResponse({ type: SignInDto })
+  @ApiOkResponse({ type: AuthReponse })
   async refresh(
     @Req() req: FastifyRequestJwtRefresh,
     @Res({ passthrough: true }) res: FastifyReply,
-  ) {
+  ): Promise<AuthReponse> {
     const {
       accessToken,
       refreshToken,
@@ -102,32 +105,35 @@ export class AuthController {
       expires: refreshTokenExpiresAt,
     });
 
-    return { accessToken, expiresAt: accessTokenExpiresAt };
+    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
   }
 
   @Post('sign-out')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAccessGuard)
+  @ApiBearerAuth('access-token')
   async signOut(
-    @Req() req: FastifyRequestJwtRefresh,
+    @Req() req: FastifyRequestJwtAccess,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
     await this.authService.signOut(req.user.sessionId);
     res.clearCookie('refresh_token', COOKIE_OPTIONS);
   }
 
-  @Post('revoke-all')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtRefreshGuard)
-  async revokeAll(@Req() req: FastifyRequestJwtRefresh) {
-    await this.authService.logoutAll(req.user.userId, req.user.sessionId);
-  }
-
   @Get('me')
   @UseGuards(JwtAccessGuard)
   @ApiBearerAuth('access-token')
-  me(@Req() req: FastifyRequestJwtAccess) {
-    return req.user;
+  @ApiOkResponse({ type: UserResponse })
+  me(@Req() req: FastifyRequestJwtAccess): UserResponse {
+    const { user } = req;
+
+    return new UserResponse(
+      new User({
+        id: user.userId,
+        username: user.username,
+        sessionId: user.sessionId,
+      }),
+    );
   }
 
   private extractMetaFromReq(req: FastifyRequest) {

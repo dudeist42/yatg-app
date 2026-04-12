@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CronService } from './cron.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SessionsModule } from '../sessions/sessions.module';
+import { SessionsModule } from '../api/sessions/sessions.module';
 import { ConfigModule } from '@nestjs/config';
 import { cronConfig } from './cron.config';
 
