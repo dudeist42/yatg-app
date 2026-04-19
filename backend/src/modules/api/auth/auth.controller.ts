@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse } from '@nestjs/swagger';
-import Bowser from 'bowser';
 import { type FastifyReply, type FastifyRequest } from 'fastify';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -47,11 +46,15 @@ export class AuthController {
       refreshToken,
       refreshTokenExpiresAt,
       accessTokenExpiresAt,
-    } = await this.authService.signUp(dto, this.extractMetaFromReq(req));
+    } = await this.authService.signUp(dto);
 
     res.setCookie('refresh_token', refreshToken, {
       ...COOKIE_OPTIONS,
       expires: refreshTokenExpiresAt,
+    });
+    res.setCookie('access_token', accessToken, {
+      ...COOKIE_OPTIONS,
+      expires: accessTokenExpiresAt,
     });
 
     return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
@@ -70,11 +73,15 @@ export class AuthController {
       refreshToken,
       refreshTokenExpiresAt,
       accessTokenExpiresAt,
-    } = await this.authService.signIn(dto, this.extractMetaFromReq(req));
+    } = await this.authService.signIn(dto);
 
     res.setCookie('refresh_token', refreshToken, {
       ...COOKIE_OPTIONS,
       expires: refreshTokenExpiresAt,
+    });
+    res.setCookie('access_token', accessToken, {
+      ...COOKIE_OPTIONS,
+      expires: accessTokenExpiresAt,
     });
 
     return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
@@ -94,15 +101,15 @@ export class AuthController {
       refreshToken,
       accessTokenExpiresAt,
       refreshTokenExpiresAt,
-    } = await this.authService.refresh(
-      req.user.userId,
-      req.user.sessionId,
-      this.extractMetaFromReq(req),
-    );
+    } = await this.authService.refresh(req.user.userId, req.user.sessionId);
 
     res.setCookie('refresh_token', refreshToken, {
       ...COOKIE_OPTIONS,
       expires: refreshTokenExpiresAt,
+    });
+    res.setCookie('access_token', accessToken, {
+      ...COOKIE_OPTIONS,
+      expires: accessTokenExpiresAt,
     });
 
     return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
@@ -134,17 +141,5 @@ export class AuthController {
         sessionId: user.sessionId,
       }),
     );
-  }
-
-  private extractMetaFromReq(req: FastifyRequest) {
-    const ip = req.ip;
-    let deviceName: string | undefined;
-    const ua = req.headers['user-agent'];
-    if (ua) {
-      const parser = Bowser.getParser(ua);
-      deviceName = `${parser.getOSName()} ${parser.getBrowserName()}`;
-    }
-
-    return { ip, deviceName };
   }
 }

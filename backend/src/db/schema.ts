@@ -46,8 +46,6 @@ export const sessions = pgTable(
       .notNull()
       .unique(),
     accessTokenId: varchar('access_token_id', { length: VarcharLen.UUIDV4 }),
-    deviceName: varchar('device_name', { length: VarcharLen.SHORT }),
-    ipAddress: varchar('ip_address', { length: VarcharLen.IP }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     expiresAt: timestamp('expires_at').notNull(),
     lastUsedAt: timestamp('last_used_at').defaultNow().notNull(),
@@ -72,8 +70,8 @@ export const movies = pgTable('movies', {
   id: integer('id').primaryKey(), // tmdb id
   title: text('title').notNull(),
   originalTitle: text('original_title').notNull(),
-  posterPath: text('poster_path').notNull(),
-  releaseDate: text('release_date').notNull(),
+  posterPath: text('poster_path'),
+  releaseDate: text('release_date'),
   cachedAt: timestamp('cached_at').defaultNow().notNull(),
 });
 

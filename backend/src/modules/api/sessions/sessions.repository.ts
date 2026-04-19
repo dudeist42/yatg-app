@@ -44,8 +44,6 @@ export class SessionsRepository {
       this.drizzle.db
         .select({
           id: schema.sessions.id,
-          ipAddress: schema.sessions.ipAddress,
-          deviceName: schema.sessions.deviceName,
           createdAt: schema.sessions.createdAt,
           lastUsedAt: schema.sessions.lastUsedAt,
         })
@@ -112,8 +110,6 @@ export class SessionsRepository {
           refreshTokenId: sql`excluded.refresh_token_id`,
           accessTokenId: sql`excluded.access_token_id`,
           lastUsedAt: sql`excluded.last_used_at`,
-          ipAddress: sql`excluded.ip_address`,
-          deviceName: sql`excluded.device_name`,
           expiresAt: sql`excluded.expires_at`,
         },
       });

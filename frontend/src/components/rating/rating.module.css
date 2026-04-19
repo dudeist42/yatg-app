@@ -1,0 +1,20 @@
+@reference '#globals.css';
+
+.root {
+  @apply flex
+    flex-row
+    items-center;
+}
+
+.starBtn {
+  @apply cursor-pointer
+    relative
+    flex
+    items-center
+    justify-center
+    shrink-0;
+
+  transform: translateZ(0);
+  width: var(--star-size);
+  height: var(--star-size);
+}

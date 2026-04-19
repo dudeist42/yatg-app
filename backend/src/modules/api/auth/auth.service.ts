@@ -26,7 +26,7 @@ export class AuthService {
     private sessionsRepository: SessionsRepository,
   ) {}
 
-  async signUp(dto: SignUpDto, meta: { ip?: string; deviceName?: string }) {
+  async signUp(dto: SignUpDto) {
     const existing = await this.usersService.findByUsername(dto.username);
     if (existing) throw new ConflictException('Username already taken');
 
@@ -37,10 +37,10 @@ export class AuthService {
       password: passwordHash,
     });
 
-    return this.createTokenPair(user.id, user.username, meta);
+    return this.createTokenPair(user.id, user.username);
   }
 
-  async signIn(dto: SignInDto, meta: { ip?: string; deviceName?: string }) {
+  async signIn(dto: SignInDto) {
     const user = await this.usersService.findByUsername(dto.username);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
@@ -50,19 +50,14 @@ export class AuthService {
     );
     if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
-    return this.createTokenPair(user.id, user.username, meta);
+    return this.createTokenPair(user.id, user.username);
   }
 
-  async refresh(
-    userId: string,
-    oldSessionId: string,
-    meta: { ip?: string; deviceName?: string },
-  ) {
+  async refresh(userId: string, oldSessionId: string) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
 
     return this.createTokenPair(user.id, user.username, {
-      ...meta,
       id: oldSessionId,
     });
   }
@@ -74,7 +69,7 @@ export class AuthService {
   private async createTokenPair(
     userId: string,
     username: string,
-    meta: { ip?: string; deviceName?: string; id?: string },
+    meta?: { id?: string },
   ) {
     const refreshTokenId = uuidv4();
     const accessTokenId = uuidv4();
@@ -86,12 +81,10 @@ export class AuthService {
     const refreshTokenExpiresAt = new Date(Date.now() + refreshTokenExpiresIn);
 
     await this.sessionsRepository.saveSession({
-      id: meta.id,
+      id: meta?.id,
       userId,
       refreshTokenId,
       accessTokenId,
-      ipAddress: meta.ip,
-      deviceName: meta.deviceName,
       expiresAt: refreshTokenExpiresAt,
     });
 

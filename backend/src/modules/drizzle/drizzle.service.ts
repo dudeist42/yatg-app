@@ -34,8 +34,7 @@ export class DrizzleService implements OnModuleDestroy {
     this.#db = drizzle(this.#connection, {
       schema,
       logger: {
-        logQuery: (query, params) => {
-          console.log(query, params);
+        logQuery: (query) => {
           this.#logger.verbose(query);
         },
       },

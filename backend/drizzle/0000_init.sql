@@ -2,8 +2,8 @@ CREATE TABLE "movies" (
 	"id" integer PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
 	"original_title" text NOT NULL,
-	"poster_path" text NOT NULL,
-	"release_date" text NOT NULL,
+	"poster_path" text,
+	"release_date" text,
 	"cached_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -12,8 +12,6 @@ CREATE TABLE "user_sessions" (
 	"user_id" varchar(32) NOT NULL,
 	"refresh_token_id" varchar(36) NOT NULL,
 	"access_token_id" varchar(36),
-	"device_name" varchar(64),
-	"ip_address" varchar(45),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"expires_at" timestamp NOT NULL,
 	"last_used_at" timestamp DEFAULT now() NOT NULL,

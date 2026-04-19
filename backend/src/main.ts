@@ -5,13 +5,18 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { HealthModule } from './modules/health/health.module';
-import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  UnprocessableEntityException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
 import { getLogLevels } from './common/utils/logger.utils';
 import { useContainer } from 'class-validator';
 import fastifyCookie from '@fastify/cookie';
 import { openApiConfig } from '../configs/openApi';
 import { camelCaseToWords } from './common/utils/string.utils';
+import { formatErrors } from './common/utils/validation.utils';
 
 const useSwaggerModule = (app: NestFastifyApplication) => {
   const documentFactory = () =>
@@ -40,6 +45,15 @@ async function createMainApp() {
       whitelist: true,
       enableDebugMessages: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        const formattedErrors = formatErrors(errors);
+
+        return new UnprocessableEntityException({
+          status: 422,
+          message: 'Validation error',
+          errors: formattedErrors,
+        });
+      },
     }),
   );
 

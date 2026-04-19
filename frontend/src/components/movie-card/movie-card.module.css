@@ -1,0 +1,40 @@
+@reference '#globals.css';
+
+.root {
+  @apply flex
+    flex-col
+    gap-1.5;
+}
+
+.card {
+  @apply rounded-xl
+    overflow-hidden
+    relative;
+}
+
+.userMarker {
+  @apply flex
+    justify-center
+    absolute
+    right-0
+    bottom-0
+    py-0.5
+    px-1
+    m-1
+    min-w-7
+    rounded-lg
+    bg-black/50
+    text-white;
+}
+
+.title {
+  @apply line-clamp-3
+    overflow-hidden
+    font-medium
+    text-lg;
+}
+
+.subtitle {
+  @apply font-light
+    text-sm;
+}

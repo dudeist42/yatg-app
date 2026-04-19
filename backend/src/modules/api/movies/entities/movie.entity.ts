@@ -4,13 +4,15 @@ export class Movie {
   originalLanguage!: string;
   originalTitle!: string;
   overview!: string;
-  posterPath!: string;
-  backdropPath!: string;
-  releaseDate!: string;
+  posterPath!: string | null;
+  backdropPath!: string | null;
+  releaseDate!: string | null;
   revenue!: number;
   runtime!: number;
   status!: string;
   title!: string;
+  tagline!: string;
+  genres!: string[];
   userWatchedAt!: Date | null;
   userRating!: number | null;
 }

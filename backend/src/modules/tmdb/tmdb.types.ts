@@ -7,8 +7,8 @@ export type TmdbV3SearchMovieResultItem = {
   original_title: string;
   overview: string;
   popularity: number;
-  poster_path: string;
-  release_date: string;
+  poster_path: string | null;
+  release_date: string | null;
   title: string;
   video: boolean;
   vote_average: number;
@@ -34,7 +34,7 @@ export type TmdbV3SearchMovieResponse = {
 
 export type TmdbV3GetMovieByIdResponse = {
   adult: boolean;
-  backdrop_path: string;
+  backdrop_path: string | null;
   belongs_to_collection: TmdbV3BelongsToCollection | null;
   budget: number;
   genres: TmdbV3Genre[];
@@ -45,10 +45,10 @@ export type TmdbV3GetMovieByIdResponse = {
   original_title: string;
   overview: string;
   popularity: number;
-  poster_path: string;
+  poster_path: string | null;
   production_companies: TmdbV3ProductionCompany[];
   production_countries: TmdbV3ProductionCountry[];
-  release_date: string;
+  release_date: string | null;
   revenue: number;
   runtime: number;
   spoken_languages: TmdbV3SpokenLanguage[];

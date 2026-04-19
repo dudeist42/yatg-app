@@ -24,7 +24,7 @@ WORKDIR /app/frontend
 ENV WATCHPACK_POLLING=true
 EXPOSE $PORT
 
-CMD ["sh", "-c", "pnpm dev --webpack -p ${PORT}"]
+CMD ["sh", "-c", "pnpm dev"]
 
 # --- BUILD ---
 FROM base AS builder

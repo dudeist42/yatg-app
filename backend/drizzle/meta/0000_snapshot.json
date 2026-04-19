@@ -1,5 +1,5 @@
 {
-  "id": "49bf593b-b1c8-4f21-95b2-bb72b50f027a",
+  "id": "9396bbb2-9733-4d89-90fc-4e0e6281479e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -30,13 +30,13 @@
           "name": "poster_path",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "release_date": {
           "name": "release_date",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "cached_at": {
           "name": "cached_at",
@@ -79,18 +79,6 @@
         "access_token_id": {
           "name": "access_token_id",
           "type": "varchar(36)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "device_name": {
-          "name": "device_name",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ip_address": {
-          "name": "ip_address",
-          "type": "varchar(45)",
           "primaryKey": false,
           "notNull": false
         },

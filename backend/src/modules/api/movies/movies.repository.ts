@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DrizzleService, TDbTransaction } from '../../drizzle/drizzle.service';
 import { DbMovie } from '../../../db/schema';
 import { schema } from '../../../db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { TmdbV3GetMovieByIdResponse } from '../../tmdb/tmdb.types';
 
 @Injectable()
@@ -59,6 +59,7 @@ export class MoviesRepository {
           rating: true,
           watchedAt: true,
         },
+        orderBy: desc(schema.userMovies.watchedAt),
         where: eq(schema.userMovies.userId, userId),
         with: {
           movie: {

@@ -11,6 +11,7 @@ DEV_COMPOSE_DB = ${DEV_COMPOSE} --profile db
 
 .PHONY: dev-up dev-down dev-logs dev-build dev-clean dev-rebuild \
 			 	dev-up-be dev-down-be dev-logs-be dev-build-be dev-clean-be dev-rebuild-be \
+			 	dev-up-fe dev-down-fe dev-logs-fe dev-build-fe dev-clean-fe dev-rebuild-fe \
 				dev-up-db dev-down-db \
 				prod-up prod-down prod-logs prod-build prod-clean
 
@@ -51,6 +52,26 @@ dev-build-be:
 
 dev-rebuild-be:
 	$(DEV_COMPOSE_BE) up -d --build --force-recreate
+
+# === DEV FRONTEND ===
+
+dev-up-fe:
+	${DEV_COMPOSE} --profile frontend up -d
+
+dev-down-fe:
+	${DEV_COMPOSE} --profile frontend down
+
+dev-clean-fe:
+	$(DEV_COMPOSE) --profile down -v
+
+dev-logs-fe:
+	$(DEV_COMPOSE) --profile logs -f
+
+dev-build-fe:
+	$(DEV_COMPOSE) --profile up -d --build
+
+dev-rebuild-fe:
+	$(DEV_COMPOSE) --profile up -d --build --force-recreate
 
 
 # === DEV DATABASE ===

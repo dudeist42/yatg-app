@@ -151,6 +151,8 @@ export class MoviesService {
       runtime: tmdbMovie.runtime,
       status: tmdbMovie.status,
       title: tmdbMovie.title,
+      tagline: tmdbMovie.tagline,
+      genres: tmdbMovie.genres.map((genre) => genre.name),
       userWatchedAt: null,
       userRating: null,
     };

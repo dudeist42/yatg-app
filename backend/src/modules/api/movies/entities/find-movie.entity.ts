@@ -5,7 +5,7 @@ export class FindMovieItem {
   originalLanguage!: string;
   originalTitle!: string;
   overview!: string;
-  posterPath!: string;
-  releaseDate!: string;
+  posterPath!: string | null;
+  releaseDate!: string | null;
   title!: string;
 }

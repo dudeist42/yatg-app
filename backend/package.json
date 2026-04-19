@@ -38,7 +38,6 @@
     "@paralleldrive/cuid2": "^3.3.0",
     "axios": "^1.14.0",
     "bcrypt": "^6.0.0",
-    "bowser": "^2.14.1",
     "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

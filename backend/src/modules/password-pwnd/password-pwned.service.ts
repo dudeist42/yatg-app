@@ -81,7 +81,6 @@ export class PasswordPwnedValidationService {
     try {
       const response = await fetch(url, { signal: controller.signal });
       const text = await response.text();
-      this.logger.fatal('HIBP', text);
       return new Set(text.split('\n').map((line) => line.split(':')[0]));
     } catch (error) {
       this.logger.error(`Request HIBP failed`, error);
