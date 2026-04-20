@@ -54,6 +54,12 @@ export type TResponse<Data> = {
   data: Data;
 };
 
+export type TUserResponse = TResponse<{
+  username: string;
+  id: string;
+  sessionId: string;
+}>;
+
 export type TUserMovie = {
   id: number;
   title: string;
@@ -117,7 +123,7 @@ export const clientApi = {
       client.post('/auth/sign-up', body).then((r) => r.data),
     refresh: () => client.post(`/auth/refresh`).then((r) => r.data),
     signOut: () => client.post(`/auth/sign-out`).then((r) => r.data),
-    me: () => client.get(`/auth/me`).then((r) => r.data),
+    me: () => client.get<TUserResponse>(`/auth/me`).then((r) => r.data),
   },
   movies: {
     find: (query: TFindMoviesDto) =>

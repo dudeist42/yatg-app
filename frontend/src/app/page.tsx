@@ -1,21 +1,9 @@
 import { AppBar } from '@/components/app-bar/app-bar';
 import { UserMovies } from '@/components/user-movies/user-movies';
-import { clientApi } from '@/lib/clientApi/api';
 import { getQueryClient } from '@/lib/query-client';
 import { isClientNavigation } from '@/lib/ssr/is-client-navigation';
+import { queries } from '@/queries';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-
-const meQueryOptions = {
-  queryFn: clientApi.auth.me,
-  queryKey: ['me'],
-};
-
-const myMoviesQueryOptions = {
-  queryFn: ({ pageParam }: { pageParam: number }) =>
-    clientApi.movies.getUserMovies({ page: pageParam }),
-  queryKey: ['my-movies'],
-  initialPageParam: 1,
-};
 
 export default async function Home() {
   const client = getQueryClient();
@@ -23,15 +11,15 @@ export default async function Home() {
 
   if (!isNavigation) {
     await Promise.all([
-      client.prefetchQuery(meQueryOptions),
-      client.prefetchInfiniteQuery(myMoviesQueryOptions),
+      client.prefetchQuery(queries.auth.me),
+      client.prefetchInfiniteQuery(queries.movie.getUserMovies),
     ]);
   }
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
       <div className="page">
-        <AppBar />
+        <AppBar variant="secondary" />
         <UserMovies />
       </div>
     </HydrationBoundary>

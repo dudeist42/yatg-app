@@ -1,27 +1,18 @@
 'use client';
-import { clientApi } from '@/lib/clientApi/api';
-import { useQuery } from '@tanstack/react-query';
-import { MovieCard } from '../movie-card/movie-card';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import DynamicBackground from '../dynamic-background/dynamic-background';
 import classes from './movie-details.module.css';
 import { DotIcon, EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import { Rating } from '../rating/rating';
 import { Button } from '@heroui/react';
-import { useCallback, useEffect, useEffectEvent } from 'react';
-import {
-  useUnwatchMovieMutation,
-  useWatchMovieMutation,
-} from '@/queries/movies/movies';
+import { useCallback, useEffect, useEffectEvent, useLayoutEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { queries } from '@/queries';
+import { MoviePoster } from '../movie-poster/movie-poster';
 
 export type TMovieDetailsProps = {
   movieId: number;
 };
-
-const getMovieQueryOptions = (movieId: number) => ({
-  queryFn: () => clientApi.movies.getById({ id: movieId }),
-  queryKey: ['movie', movieId],
-});
 
 const convertMinutesToDuration = (minutes: number) => {
   const hh = String(Math.floor(minutes / 60)).padStart(2, '0');
@@ -31,14 +22,15 @@ const convertMinutesToDuration = (minutes: number) => {
 };
 
 export const MovieDetails = (props: TMovieDetailsProps) => {
-  const movieQuery = useQuery(getMovieQueryOptions(props.movieId));
-  const { mutateAsync: watchMovie } = useWatchMovieMutation();
-  const { mutateAsync: unwatchMovie } = useUnwatchMovieMutation();
+  const movieQuery = useQuery(queries.movie.getById(props.movieId));
+  const { mutateAsync: watchMovie } = useMutation(queries.movie.watch);
+  const { mutateAsync: unwatchMovie } = useMutation(queries.movie.unwatch);
   const router = useRouter();
 
   const error = movieQuery.error;
   const movieId = props.movieId;
-  const movie = movieQuery.data?.data;
+  const movie = movieQuery.data;
+
   const backdropPath =
     movie?.backdropPath && `/api/tmdb-image/w1280${movie?.backdropPath}`;
   const currentRating = movie?.userRating ?? null;
@@ -57,7 +49,7 @@ export const MovieDetails = (props: TMovieDetailsProps) => {
     }
   }, [error]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', 'dark');
 
     return () => {
@@ -87,12 +79,15 @@ export const MovieDetails = (props: TMovieDetailsProps) => {
 
   return (
     <>
+      {movie && <title>{`${movie.title} | YATG`}</title>}
       {movie && <DynamicBackground src={backdropPath} darken={false} />}
       <div className="p-4 relative text-white">
         <div className="flex flex-row gap-12">
-          {movieQuery.data && (
-            <MovieCard posterPath={movie?.posterPath} posterWidth={500} />
-          )}
+          <MoviePoster
+            loading={movieQuery.isLoading}
+            path={movie?.posterPath}
+            size="xl"
+          />
           <div className="flex flex-col gap-1">
             <span className="text-lg font-light">{releaseYear}</span>
             <span className="text-7xl font-bold">{movie?.title}</span>

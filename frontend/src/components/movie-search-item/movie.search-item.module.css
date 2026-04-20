@@ -1,0 +1,30 @@
+@reference '#globals.css';
+
+.item {
+  @apply flex
+    flex-row
+    rounded-lg
+    gap-2
+    p-2
+    first:mt-1
+    last:mb-1;
+}
+
+.poster {
+  @apply w-[80px] h-[120px];
+}
+
+.content {
+  @apply flex flex-col;
+}
+
+.title {
+  @apply font-semibold
+    text-xl
+    max-w-full
+    line-clamp-2;
+}
+
+.subtitle {
+  @apply font-light;
+}

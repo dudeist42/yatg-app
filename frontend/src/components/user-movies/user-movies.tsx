@@ -1,49 +1,40 @@
 'use client';
-import { clientApi, TUserMoviesReponse } from '@/lib/clientApi/api';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { MovieCard } from '../movie-card/movie-card';
 import { Button } from '@heroui/react';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import Link from 'next/link';
-
-const getUserMoviesQueryOptions = {
-  queryFn: ({ pageParam }: { pageParam: number }) =>
-    clientApi.movies.getUserMovies({ page: pageParam }),
-  queryKey: ['my-movies'],
-  initialPageParam: 1,
-  getNextPageParam: (lastPage: TUserMoviesReponse) => {
-    return lastPage.meta.page + 1;
-  },
-};
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { queries } from '@/queries';
+import { UserMovie } from '../user-movie/user-movie';
 
 export const UserMovies = () => {
-  const userMovies = useInfiniteQuery(getUserMoviesQueryOptions);
+  const {
+    data: movies,
+    hasNextPage,
+    fetchNextPage,
+    isFetching,
+  } = useInfiniteQuery(queries.movie.getUserMovies);
 
-  const lastPage = userMovies.data?.pages.at(-1);
-  const hasNextPage = lastPage && lastPage.meta.page < lastPage.meta.totalPages;
+  const loadMore = () => {
+    fetchNextPage();
+  };
 
   return (
     <div className="p-3 mx-auto">
       <div className="grid grid-cols-[repeat(auto-fit,171px)] gap-4 justify-center">
-        {userMovies.data?.pages.map((page) =>
-          page.data.map((movie) => (
-            <MovieCard
-              As={Link}
-              key={movie.id}
-              title={movie.title}
-              posterPath={movie.posterPath}
-              posterWidth={342}
-              releaseDate={movie.releaseDate}
-              watched={!!movie.userWatchedAt}
-              rating={movie.userRating}
-              href={`/movie/${movie.id}`}
-              prefetch={false}
-            />
-          )),
-        )}
-        {hasNextPage && (
+        {movies?.map((movie) => (
+          <UserMovie
+            As={Link}
+            key={movie.id}
+            movie={movie}
+            href={`/movie/${movie.id}`}
+            prefetch={false}
+          />
+        ))}
+        {isFetching &&
+          Array.from({ length: 10 }, (_, idx) => <UserMovie key={idx} />)}
+        {hasNextPage && !isFetching && (
           <div className="flex justify-center items-center">
-            <Button variant="ghost" onClick={() => userMovies.fetchNextPage()}>
+            <Button variant="ghost" onClick={loadMore}>
               Load More
               <ArrowRightIcon weight="bold" size={40} />
             </Button>

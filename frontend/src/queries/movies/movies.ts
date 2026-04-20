@@ -1,126 +1,106 @@
+import { clientApi, TGetMovieByIdResponse } from '@/lib/clientApi/api';
 import {
-  clientApi,
-  TFindMovieResponse,
-  TGetMovieByIdResponse,
-} from '@/lib/clientApi/api';
-import {
-  InfiniteData,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
+  infiniteQueryOptions,
+  mutationOptions,
+  queryOptions,
 } from '@tanstack/react-query';
-import { useDebounce } from 'use-debounce';
+import { getNextPageParam, selectData, selectPaginatedData } from '../lib';
 
 export const movieCacheKeys = {
   root: ['movie'],
   getById: (movieId: number) => [...movieCacheKeys.root, movieId],
   find: (search: string) => ['find-movie', search],
+  getUserMovies: () => ['user-movies'],
 };
 
-export const getMovieByIdQueryOptions = (movieId: number) => ({
-  queryFn: () => clientApi.movies.getById({ id: movieId }),
-  queryKey: movieCacheKeys.getById(movieId),
-});
-
-export const getWatchMovieMutationOptions = () => {};
-
-export const useMovieByIdQuery = (movieId?: number | null) => {
-  const query = useQuery({
-    ...getMovieByIdQueryOptions(movieId!),
+const getMovieByIdQueryOptions = (movieId: number) =>
+  queryOptions({
+    queryFn: () => clientApi.movies.getById({ id: movieId }),
+    queryKey: movieCacheKeys.getById(movieId),
     enabled: typeof movieId === 'number',
-    select(data) {
-      return data.data;
-    },
+    select: selectData,
   });
 
-  return query;
-};
+const watchMovieMutationOptions = mutationOptions({
+  mutationFn: ({ id, ...body }: { id: number; rating?: number | null }) =>
+    clientApi.movies.watch({ id }, body),
+  onSettled(data, error, variables, onMutateResult, context) {
+    const queryKey = movieCacheKeys.getById(variables.id);
+    const movieData =
+      context.client.getQueryData<TGetMovieByIdResponse>(queryKey);
 
-export const useWatchMovieMutation = () => {
-  const mutation = useMutation({
-    mutationFn: ({ id, ...body }: { id: number; rating?: number | null }) =>
-      clientApi.movies.watch({ id }, body),
-    onSettled(data, error, variables, onMutateResult, context) {
-      const queryKey = movieCacheKeys.getById(variables.id);
-      const movieData =
-        context.client.getQueryData<TGetMovieByIdResponse>(queryKey);
-
-      if (movieData) {
-        const date = new Date();
-        const patchedQueryData: TGetMovieByIdResponse = {
-          ...movieData,
-          data: {
-            ...movieData.data,
-            userRating: variables.rating ?? null,
-            userWatchedAt: date.toISOString(),
-          },
-        };
-        context.client.setQueryData<TGetMovieByIdResponse>(
-          queryKey,
-          patchedQueryData,
-        );
-      }
-    },
-  });
-
-  return mutation;
-};
-
-export const useUnwatchMovieMutation = () => {
-  const mutation = useMutation({
-    mutationFn: clientApi.movies.unwatch,
-    onSettled(data, error, variables, onMutateResult, context) {
-      const queryKey = movieCacheKeys.getById(variables.id);
-      const movieData =
-        context.client.getQueryData<TGetMovieByIdResponse>(queryKey);
-
-      if (movieData) {
-        const patchedQueryData: TGetMovieByIdResponse = {
-          ...movieData,
-          data: {
-            ...movieData.data,
-            userRating: null,
-            userWatchedAt: null,
-          },
-        };
-        context.client.setQueryData<TGetMovieByIdResponse>(
-          queryKey,
-          patchedQueryData,
-        );
-      }
-    },
-  });
-
-  return mutation;
-};
-
-export const selectSearchMoviesData = (
-  data: InfiniteData<TFindMovieResponse, number>,
-) => {
-  return data.pages.map((page) => page.data).flat();
-};
-
-export const getSearchMovieNextPageParam = (response: TFindMovieResponse) => {
-  const nextPage = response.meta.page + 1;
-
-  return nextPage > response.meta.totalPages ? null : nextPage;
-};
-
-export const getSearchMovieInfinityQueryOptions = (search: string) => ({
-  queryFn: ({ pageParam }: { pageParam: number }) =>
-    clientApi.movies.find({ query: search, page: pageParam }),
-  queryKey: movieCacheKeys.find(search),
-  initialPageParam: 1,
-  getNextPageParam: getSearchMovieNextPageParam,
-  enabled: search.length > 2,
-  select: selectSearchMoviesData,
+    if (movieData) {
+      const date = new Date();
+      const patchedQueryData: TGetMovieByIdResponse = {
+        ...movieData,
+        data: {
+          ...movieData.data,
+          userRating: variables.rating ?? null,
+          userWatchedAt: date.toISOString(),
+        },
+      };
+      context.client.setQueryData<TGetMovieByIdResponse>(
+        queryKey,
+        patchedQueryData,
+      );
+    }
+    context.client.invalidateQueries({
+      queryKey: movieCacheKeys.getUserMovies(),
+    });
+  },
 });
 
-export const useSearchMoviesInfinityQuery = (search: string) => {
-  const [debouncedSearch] = useDebounce(search, 300);
-  const query = useInfiniteQuery(
-    getSearchMovieInfinityQueryOptions(debouncedSearch),
-  );
+const unwatchMovieMutationOptions = mutationOptions({
+  mutationFn: clientApi.movies.unwatch,
+  onSettled(data, error, variables, onMutateResult, context) {
+    const queryKey = movieCacheKeys.getById(variables.id);
+    const movieData =
+      context.client.getQueryData<TGetMovieByIdResponse>(queryKey);
 
-  return query;
+    if (movieData) {
+      const patchedQueryData: TGetMovieByIdResponse = {
+        ...movieData,
+        data: {
+          ...movieData.data,
+          userRating: null,
+          userWatchedAt: null,
+        },
+      };
+      context.client.setQueryData<TGetMovieByIdResponse>(
+        queryKey,
+        patchedQueryData,
+      );
+    }
+    context.client.invalidateQueries({
+      queryKey: movieCacheKeys.getUserMovies(),
+    });
+  },
+});
+
+const getFindMoviesInfiniteQueryOptions = (search: string) =>
+  infiniteQueryOptions({
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      clientApi.movies.find({ query: search, page: pageParam }),
+    queryKey: movieCacheKeys.find(search),
+    initialPageParam: 1,
+    getNextPageParam,
+    enabled: search.length > 2,
+    select: selectPaginatedData,
+  });
+
+const userMoviesInfiniteQueryOptions = infiniteQueryOptions({
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    clientApi.movies.getUserMovies({ page: pageParam }),
+  queryKey: movieCacheKeys.getUserMovies(),
+  initialPageParam: 1,
+  getNextPageParam,
+  select: selectPaginatedData,
+});
+
+export const movieQueries = {
+  find: getFindMoviesInfiniteQueryOptions,
+  getById: getMovieByIdQueryOptions,
+  watch: watchMovieMutationOptions,
+  unwatch: unwatchMovieMutationOptions,
+  getUserMovies: userMoviesInfiniteQueryOptions,
 };
