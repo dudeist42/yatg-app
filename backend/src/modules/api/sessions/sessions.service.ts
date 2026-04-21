@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GetUserSessionsQueryDto } from './dto/get-sessions.dto';
+import { GetSessionsQueryDto } from './dto/get-sessions.dto';
 import { SessionsRepository } from './sessions.repository';
 import {
   getOffsetByPage,
@@ -10,7 +10,7 @@ import {
 export class SessionsService {
   constructor(private sessionsRepository: SessionsRepository) {}
 
-  async findSessionsByUserId(userId: string, query: GetUserSessionsQueryDto) {
+  async findSessionsByUserId(userId: string, query: GetSessionsQueryDto) {
     const offset = getOffsetByPage(query.page, query.limit);
     const { total, data } = await this.sessionsRepository.findSessionsByUserId({
       userId,

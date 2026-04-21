@@ -13,10 +13,10 @@ import { SessionsService } from './sessions.service';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ApiPaginatedResponse } from '../../../common/pagination/pagination.decorator';
-import { UserSession } from './entities/user-session.entity';
+import { SessionEntity } from './entities/session.entity';
 import { type FastifyRequestJwtAccess } from '../auth/strategies/jwt-access.strategy';
-import { GetUserSessionsQueryDto } from './dto/get-sessions.dto';
-import { GetUserSessionsResponse } from './responses/get-user-sessions.response';
+import { GetSessionsQueryDto } from './dto/get-sessions.dto';
+import { GetSessionsResponse } from './responses/get-user-sessions.response';
 import { DeleteSessionParamsDto } from './dto/delete-session.dto';
 
 @Controller('sessions')
@@ -27,11 +27,11 @@ export class SessionsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAccessGuard)
   @ApiBearerAuth('access-token')
-  @ApiPaginatedResponse(UserSession)
+  @ApiPaginatedResponse(SessionEntity)
   getSessions(
     @Req() req: FastifyRequestJwtAccess,
-    @Query() query: GetUserSessionsQueryDto,
-  ): Promise<GetUserSessionsResponse> {
+    @Query() query: GetSessionsQueryDto,
+  ): Promise<GetSessionsResponse> {
     return this.sessionsService.findSessionsByUserId(req.user.userId, query);
   }
 

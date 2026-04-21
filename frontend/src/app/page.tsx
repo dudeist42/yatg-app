@@ -1,18 +1,21 @@
-import { AppBar } from '@/components/app-bar/app-bar';
-import { UserMovies } from '@/components/user-movies/user-movies';
-import { getQueryClient } from '@/lib/query-client';
-import { isClientNavigation } from '@/lib/ssr/is-client-navigation';
-import { queries } from '@/queries';
+import { AppBar } from '@/widgets/app-bar';
+import { UserMovies } from '@/widgets/user-movies';
+import { getQueryClient } from '@/shared/lib/query-client';
+import { getIsClientNavigation } from '@/shared/lib/ssr';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { meQueries } from '@/entities/me';
+import { userMoviesQueries } from '@/entities/user-movies';
 
 export default async function Home() {
   const client = getQueryClient();
-  const isNavigation = await isClientNavigation();
+  const isClientNavigation = await getIsClientNavigation();
 
-  if (!isNavigation) {
+  if (!isClientNavigation) {
     await Promise.all([
-      client.prefetchQuery(queries.auth.me),
-      client.prefetchInfiniteQuery(queries.movie.getUserMovies),
+      client.prefetchQuery(meQueries.getMeQueryOptions),
+      client.prefetchInfiniteQuery(
+        userMoviesQueries.getAllInfiniteQueryOptions(),
+      ),
     ]);
   }
 

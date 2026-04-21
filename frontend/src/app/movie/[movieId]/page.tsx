@@ -1,17 +1,17 @@
-import { AppBar } from '@/components/app-bar/app-bar';
-import { MovieDetails } from '@/components/movie-details/movie-details';
-import { clientApi } from '@/lib/clientApi/api';
-import { getQueryClient } from '@/lib/query-client';
-import { isClientNavigation } from '@/lib/ssr/is-client-navigation';
-import { queries } from '@/queries';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { Metadata } from 'next';
 import { cache } from 'react';
+import { Metadata } from 'next';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { moviesApi, moviesQueries } from '@/entities/movies';
+import { meQueries } from '@/entities/me';
+import { AppBar } from '@/widgets/app-bar';
+import { MovieDetails } from '@/widgets/movie-details';
+import { getQueryClient } from '@/shared/lib/query-client';
+import { getIsClientNavigation } from '@/shared/lib/ssr';
 
 export type TMoviePageProps = PageProps<'/movie/[movieId]'>;
 
 const fetchMovieFn = cache(async (movieId: number) =>
-  clientApi.movies.getById({ id: movieId }),
+  moviesApi.getById({ id: movieId }),
 );
 
 export async function generateMetadata({
@@ -19,7 +19,7 @@ export async function generateMetadata({
 }: TMoviePageProps): Promise<Metadata> {
   const [{ movieId }, isClientNav] = await Promise.all([
     params,
-    isClientNavigation(),
+    getIsClientNavigation(),
   ]);
 
   if (!isClientNav) {
@@ -39,14 +39,17 @@ export async function generateMetadata({
 
 export default async function MoviePage({ params }: TMoviePageProps) {
   const client = getQueryClient();
-  const { movieId } = await params;
+  const [{ movieId }, isClientNavigation] = await Promise.all([
+    params,
+    getIsClientNavigation(),
+  ]);
   const id = Number(movieId);
 
-  if (!(await isClientNavigation())) {
+  if (!isClientNavigation) {
     await Promise.all([
-      client.prefetchQuery(queries.auth.me),
+      client.prefetchQuery(meQueries.getMeQueryOptions),
       client.prefetchQuery({
-        ...queries.movie.getById(id),
+        ...moviesQueries.getByIdQueryOptions({ id }),
         queryFn: () => fetchMovieFn(id),
       }),
     ]);

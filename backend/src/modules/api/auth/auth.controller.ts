@@ -12,15 +12,16 @@ import {
 import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse } from '@nestjs/swagger';
 import { type FastifyReply, type FastifyRequest } from 'fastify';
 import { AuthService } from './auth.service';
-import { SignUpDto } from './dto/sign-up.dto';
-import { SignInDto } from './dto/sign-in.dto';
-import { AuthReponse } from './responses/auth.response';
+import { SignUpBodyDto } from './dto/sign-up.dto';
+import { SignInBodyDto } from './dto/sign-in.dto';
+import { SignInResponse } from './responses/sign-in.response';
 import { type FastifyRequestJwtRefresh } from './strategies/jwt-refresh.strategy';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { type FastifyRequestJwtAccess } from './strategies/jwt-access.strategy';
-import { UserResponse } from './responses/user.response';
-import { User } from './entities/user.entity';
+import { GetMeResponse } from './responses/me.response';
+import { SignUpResponse } from './responses/sign-up.response';
+import { RefreshTokenResponse } from './responses/refresh-token.response';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -35,12 +36,11 @@ export class AuthController {
 
   @Post('sign-up')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AuthReponse })
+  @ApiOkResponse({ type: SignUpResponse })
   async signUp(
-    @Body() dto: SignUpDto,
-    @Req() req: FastifyRequest,
+    @Body() dto: SignUpBodyDto,
     @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<AuthReponse> {
+  ): Promise<SignInResponse> {
     const {
       accessToken,
       refreshToken,
@@ -62,12 +62,12 @@ export class AuthController {
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AuthReponse })
+  @ApiOkResponse({ type: SignInResponse })
   async signIn(
-    @Body() dto: SignInDto,
+    @Body() dto: SignInBodyDto,
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<AuthReponse> {
+  ): Promise<SignInResponse> {
     const {
       accessToken,
       refreshToken,
@@ -91,11 +91,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
   @ApiCookieAuth('refresh-token')
-  @ApiOkResponse({ type: AuthReponse })
+  @ApiOkResponse({ type: RefreshTokenResponse })
   async refresh(
     @Req() req: FastifyRequestJwtRefresh,
     @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<AuthReponse> {
+  ): Promise<SignInResponse> {
     const {
       accessToken,
       refreshToken,
@@ -130,16 +130,16 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAccessGuard)
   @ApiBearerAuth('access-token')
-  @ApiOkResponse({ type: UserResponse })
-  me(@Req() req: FastifyRequestJwtAccess): UserResponse {
+  @ApiOkResponse({ type: GetMeResponse })
+  me(@Req() req: FastifyRequestJwtAccess): GetMeResponse {
     const { user } = req;
 
-    return new UserResponse(
-      new User({
+    return {
+      data: {
         id: user.userId,
         username: user.username,
         sessionId: user.sessionId,
-      }),
-    );
+      },
+    };
   }
 }

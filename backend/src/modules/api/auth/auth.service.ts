@@ -10,9 +10,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { type ConfigType } from '@nestjs/config';
 import { authConfig } from './auth.config';
 import ms from 'ms';
-import { SignUpDto } from './dto/sign-up.dto';
+import { SignUpBodyDto } from './dto/sign-up.dto';
 import bcrypt from 'bcrypt';
-import { SignInDto } from './dto/sign-in.dto';
+import { SignInBodyDto } from './dto/sign-in.dto';
 import { msToSeconds } from '../../../common/utils/time.utils';
 import { SessionsRepository } from '../sessions/sessions.repository';
 
@@ -26,7 +26,7 @@ export class AuthService {
     private sessionsRepository: SessionsRepository,
   ) {}
 
-  async signUp(dto: SignUpDto) {
+  async signUp(dto: SignUpBodyDto) {
     const existing = await this.usersService.findByUsername(dto.username);
     if (existing) throw new ConflictException('Username already taken');
 
@@ -40,7 +40,7 @@ export class AuthService {
     return this.createTokenPair(user.id, user.username);
   }
 
-  async signIn(dto: SignInDto) {
+  async signIn(dto: SignInBodyDto) {
     const user = await this.usersService.findByUsername(dto.username);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 

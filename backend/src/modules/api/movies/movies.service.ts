@@ -1,39 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { DrizzleService, TDbTransaction } from '../../drizzle/drizzle.service';
+import { Injectable } from '@nestjs/common';
 import { TmdbService } from '../../tmdb/tmdb.service';
 import { FindMoviesQueryDto } from './dto/find-movies.dto';
-import { FindMovieItem } from './entities/find-movie.entity';
-import { Movie } from './entities/movie.entity';
-import { WatchMovieBodyDto } from './dto/watch-movie.dto';
+import { MovieEntity } from './entities/movie.entity';
+import { DetailedMovie } from './entities/detailed-movie.entity';
 import { MoviesRepository } from './movies.repository';
-import {
-  getOffsetByPage,
-  getTotalPages,
-} from '../../../common/pagination/pagination.utils';
-import { GetUserMoviesResponse } from './responses/find-user-movies.response';
 import {
   TmdbV3GetMovieByIdResponse,
   TmdbV3SearchMovieResultItem,
 } from '../../tmdb/tmdb.types';
 import { PaginatedResponse } from '../../../common/pagination/pagination.response';
+import { UserMoviesRepository } from '../user-movies/user-movies.repository';
 
 @Injectable()
 export class MoviesService {
   constructor(
-    private drizzleService: DrizzleService,
     private tmdbService: TmdbService,
     private moviesRepository: MoviesRepository,
+    private userMoviesRepository: UserMoviesRepository,
   ) {}
 
   async search(
     userId: string,
     query: FindMoviesQueryDto,
-  ): Promise<PaginatedResponse<FindMovieItem>> {
+  ): Promise<PaginatedResponse<MovieEntity>> {
     const tmdbSearchResult = await this.tmdbService.searchMovies(query);
 
     const movieIds = tmdbSearchResult.results.map((movie) => movie.id);
 
-    const userMovies = await this.moviesRepository.findUserMovies({
+    const userMovies = await this.userMoviesRepository.findUserMovies({
       userId,
       movieIds,
     });
@@ -60,29 +54,6 @@ export class MoviesService {
     return result;
   }
 
-  async watch(userId: string, movieId: number, params: WatchMovieBodyDto) {
-    await this.drizzleService.db.transaction(async (tx) => {
-      const movie = await this.moviesRepository.findMovieById(movieId);
-
-      if (!movie) {
-        await this.syncMovie(movieId);
-      }
-
-      await this.moviesRepository.setWatched(
-        {
-          userId,
-          movieId,
-          rating: params.rating,
-        },
-        tx,
-      );
-    });
-  }
-
-  async unwatch(userId: string, movieId: number) {
-    await this.moviesRepository.setUnwatched({ userId, movieId });
-  }
-
   async getMovieById(userId: string, movieId: number) {
     const [dbMovie, tmdbMovie] = await Promise.all([
       this.moviesRepository.findMovieByIdWithUserFields(userId, movieId),
@@ -102,42 +73,9 @@ export class MoviesService {
     };
   }
 
-  async getUserMovies(
-    userId: string,
-    limit: number,
-    page: number,
-  ): Promise<GetUserMoviesResponse> {
-    const offset = getOffsetByPage(page, limit);
-    const result = await this.moviesRepository.findAllUserMovies({
-      userId,
-      limit,
-      offset,
-    });
-    const totalPages = getTotalPages(result.total, limit);
-
-    return {
-      data: result.movies,
-      meta: {
-        totalItems: result.total,
-        totalPages,
-        page,
-      },
-    };
-  }
-
-  private async syncMovie(movieId: number, tx?: TDbTransaction) {
-    const movie = await this.tmdbService.getMovieById(movieId);
-
-    if (movie.id) {
-      const cachedMovie = await this.moviesRepository.cacheMovie(movie, tx);
-
-      return cachedMovie;
-    }
-
-    throw new NotFoundException('Movie not found.');
-  }
-
-  private tmdbToMovieEntity(tmdbMovie: TmdbV3GetMovieByIdResponse): Movie {
+  private tmdbToMovieEntity(
+    tmdbMovie: TmdbV3GetMovieByIdResponse,
+  ): DetailedMovie {
     return {
       id: tmdbMovie.id,
       budget: tmdbMovie.budget,
@@ -160,7 +98,7 @@ export class MoviesService {
 
   private tmdbSearchToFindMovie(
     movie: TmdbV3SearchMovieResultItem,
-  ): FindMovieItem {
+  ): MovieEntity {
     return {
       id: movie.id,
       originalLanguage: movie.original_language,

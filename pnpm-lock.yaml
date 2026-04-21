@@ -159,6 +159,9 @@ importers:
       '@types/supertest':
         specifier: ^7.0.0
         version: 7.2.0
+      '@yatg-app/api-types':
+        specifier: workspace:*
+        version: link:../packages/api-types
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
@@ -256,6 +259,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.3(@types/react@19.2.14)
+      '@yatg-app/api-types':
+        specifier: workspace:*
+        version: link:../packages/api-types
       eslint:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
@@ -271,6 +277,8 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.3
+
+  packages/api-types: {}
 
 packages:
 

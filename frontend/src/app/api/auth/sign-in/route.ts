@@ -14,8 +14,12 @@ export async function POST(req: NextRequest) {
     },
   );
 
-  const data = await backendResponse.json();
-  const response = NextResponse.json(data, { status: backendResponse.status });
+  const response = NextResponse.json(
+    backendResponse.status === 200
+      ? { success: true }
+      : await backendResponse.json(),
+    { status: backendResponse.status },
+  );
 
   backendResponse.headers.getSetCookie().forEach((cookie) => {
     response.headers.append('set-cookie', cookie);

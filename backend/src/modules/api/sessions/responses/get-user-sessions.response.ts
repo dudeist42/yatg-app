@@ -1,4 +1,4 @@
 import { PaginatedResponse } from '../../../../common/pagination/pagination.response';
-import { UserSession } from '../entities/user-session.entity';
+import { SessionEntity } from '../entities/session.entity';
 
-export class GetUserSessionsResponse extends PaginatedResponse<UserSession> {}
+export class GetSessionsResponse extends PaginatedResponse<SessionEntity> {}

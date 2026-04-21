@@ -25,6 +25,7 @@
     "use-debounce": "^10.1.1"
   },
   "devDependencies": {
+    "@yatg-app/api-types": "workspace:*",
     "@tailwindcss/postcss": "^4",
     "@tanstack/eslint-plugin-query": "^5.99.0",
     "@types/node": "^20",

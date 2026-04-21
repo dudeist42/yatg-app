@@ -1,6 +1,7 @@
+import { TSignInBodyDto } from '@yatg-app/api-types';
 import { IsString, Length, MinLength } from 'class-validator';
 
-export class SignInDto {
+export class SignInBodyDto implements TSignInBodyDto {
   @IsString()
   @Length(5, 100)
   username!: string;
