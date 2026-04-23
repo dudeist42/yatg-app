@@ -6,6 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { meQueries } from '@/entities/me/api';
 import { MoviesSearchModal } from '@/features/search-movie';
 import { Button } from '@heroui/react/button';
+import { UserIcon } from '@phosphor-icons/react/User';
+import { Dropdown, Label } from '@heroui/react';
+import { useSignOut } from '@/features/sign-out';
 
 export type TAppBarProps = {
   variant?: SearchFieldProps['variant'];
@@ -14,6 +17,7 @@ export type TAppBarProps = {
 export const AppBar = ({ variant }: TAppBarProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { data } = useQuery(meQueries.getMeQueryOptions);
+  const { signOut, isPending: isSignOutPending } = useSignOut();
 
   const openSearch = () => {
     setIsSearchOpen(true);
@@ -66,7 +70,19 @@ export const AppBar = ({ variant }: TAppBarProps) => {
         </Button>
         <MoviesSearchModal isOpen={isSearchOpen} onClose={closeSearch} />
       </div>
-      <div>{data?.username}</div>
+      <Dropdown>
+        <Button variant="ghost">
+          <UserIcon />
+          {data?.username}
+        </Button>
+        <Dropdown.Popover>
+          <Dropdown.Menu>
+            <Dropdown.Item onClick={signOut} isDisabled={isSignOutPending}>
+              <Label>Sign out</Label>
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
     </div>
   );
 };
