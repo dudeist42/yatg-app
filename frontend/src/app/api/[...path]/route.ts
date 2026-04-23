@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const handleRequest = async (
   request: NextRequest,
@@ -16,9 +16,16 @@ const handleRequest = async (
 
   const proxyRequest = new Request(proxyUrl, request);
   proxyRequest.headers.append('Authorization', `Bearer ${accessToken}`);
+  proxyRequest.headers.set('Accept-Encoding', 'identity');
 
   try {
-    return fetch(proxyRequest);
+    const response = await fetch(proxyRequest);
+
+    return new NextResponse(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
   } catch (reason) {
     const message =
       reason instanceof Error ? reason.message : 'Unexpected exception';
