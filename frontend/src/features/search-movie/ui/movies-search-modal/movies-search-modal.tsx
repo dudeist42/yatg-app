@@ -21,7 +21,7 @@ export const MoviesSearchModal = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebounce(searchQuery, 300);
   const { data: movies, isFetching } = useInfiniteQuery(
-    moviesQueries.findInfiniteQueryOptions({ query: searchQuery }),
+    moviesQueries.findInfiniteQueryOptions({ query: debouncedSearch }),
   );
 
   const isMoviesFound = !!movies && movies.length > 0;
