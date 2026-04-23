@@ -1,7 +1,7 @@
 {
   "name": "yatg-app",
   "version": "1.0.0",
-  "description": "Yet another TDMP generic app",
+  "description": "Yet Another TMDB Generic application",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
