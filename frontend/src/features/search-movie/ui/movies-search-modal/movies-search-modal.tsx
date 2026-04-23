@@ -48,11 +48,15 @@ export const MoviesSearchModal = ({
   );
 
   return (
-    <Modal.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
-      <Modal.Container placement="top">
+    <Modal.Backdrop
+      isOpen={isOpen}
+      onOpenChange={handleOpenChange}
+      className="h-full"
+    >
+      <Modal.Container placement="top" className="absolute top-0">
         <Modal.Dialog
           aria-label="Search movies"
-          className="max-w-[768px] max-sm:max-h-[max(85vh,50px)] p-0"
+          className="max-w-[768px] max-sm:max-h-[max(85vh,50px)] p-0 w-screen"
         >
           <Modal.Body className="flex flex-col">
             <div className="py-4 flex flex-col overflow-hidden">

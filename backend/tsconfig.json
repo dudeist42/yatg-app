@@ -20,7 +20,7 @@
     "noFallthroughCasesInSwitch": true,
     "strict": true
   },
-  "include": ["./src/**/*", "./configs/*", "./scripts/*", "./drizzle.config.ts"],
+  "include": ["./src/**/*", "src/configs/*", "./drizzle.config.ts"],
   "watchOptions": {
     "watchFile": "fixedPollingInterval"
   }

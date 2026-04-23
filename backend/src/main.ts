@@ -13,7 +13,7 @@ import {
 import { SwaggerModule } from '@nestjs/swagger';
 import { getLogLevels } from './common/utils/logger.utils';
 import { useContainer } from 'class-validator';
-import { openApiConfig } from '../configs/openApi';
+import { openApiConfig } from './configs/openApi';
 import { camelCaseToWords } from './common/utils/string.utils';
 import { formatErrors } from './common/utils/validation.utils';
 
@@ -78,7 +78,7 @@ async function bootstrap() {
 
   await Promise.all([
     app.listen(process.env.PORT ?? 3000, '::'),
-    healthApp.listen(process.env.BACKEND_HEALTH_PORT ?? 3001, '::'),
+    healthApp.listen(process.env.HEALTH_PORT ?? 3001, '::'),
   ]);
 }
 
