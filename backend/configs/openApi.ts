@@ -4,11 +4,6 @@ export const openApiConfig = new DocumentBuilder()
   .setTitle('Yet another TIMDB application')
   .setDescription('Api')
   .setVersion('1.0')
-  .addCookieAuth('refresh-token', {
-    type: 'apiKey',
-    in: 'cookie',
-    name: 'refresh_token',
-  })
   .addBearerAuth(
     {
       type: 'http',

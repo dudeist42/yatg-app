@@ -1,5 +1,5 @@
 'use server';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Providers from './providers';
@@ -14,6 +14,14 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
 });
+
+export async function generateViewport(): Promise<Viewport> {
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+  };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -37,11 +45,14 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       data-theme={theme}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <head>
+        <meta name="theme-color" content="#fff" />
+      </head>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

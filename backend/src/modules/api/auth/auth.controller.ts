@@ -6,11 +6,9 @@ import {
   HttpStatus,
   Post,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiCookieAuth, ApiOkResponse } from '@nestjs/swagger';
-import { type FastifyReply, type FastifyRequest } from 'fastify';
+import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignUpBodyDto } from './dto/sign-up.dto';
 import { SignInBodyDto } from './dto/sign-in.dto';
@@ -22,13 +20,7 @@ import { type FastifyRequestJwtAccess } from './strategies/jwt-access.strategy';
 import { GetMeResponse } from './responses/me.response';
 import { SignUpResponse } from './responses/sign-up.response';
 import { RefreshTokenResponse } from './responses/refresh-token.response';
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  path: '/',
-};
+import { RefreshTokenBodyDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,94 +29,47 @@ export class AuthController {
   @Post('sign-up')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: SignUpResponse })
-  async signUp(
-    @Body() dto: SignUpBodyDto,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<SignInResponse> {
-    const {
-      accessToken,
-      refreshToken,
-      refreshTokenExpiresAt,
-      accessTokenExpiresAt,
-    } = await this.authService.signUp(dto);
+  async signUp(@Body() dto: SignUpBodyDto): Promise<SignUpResponse> {
+    const data = await this.authService.signUp(dto);
 
-    res.setCookie('refresh_token', refreshToken, {
-      ...COOKIE_OPTIONS,
-      expires: refreshTokenExpiresAt,
-    });
-    res.setCookie('access_token', accessToken, {
-      ...COOKIE_OPTIONS,
-      expires: accessTokenExpiresAt,
-    });
-
-    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
+    return {
+      data,
+    };
   }
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: SignInResponse })
-  async signIn(
-    @Body() dto: SignInBodyDto,
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<SignInResponse> {
-    const {
-      accessToken,
-      refreshToken,
-      refreshTokenExpiresAt,
-      accessTokenExpiresAt,
-    } = await this.authService.signIn(dto);
+  async signIn(@Body() dto: SignInBodyDto): Promise<SignInResponse> {
+    const data = await this.authService.signIn(dto);
 
-    res.setCookie('refresh_token', refreshToken, {
-      ...COOKIE_OPTIONS,
-      expires: refreshTokenExpiresAt,
-    });
-    res.setCookie('access_token', accessToken, {
-      ...COOKIE_OPTIONS,
-      expires: accessTokenExpiresAt,
-    });
-
-    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
+    return {
+      data,
+    };
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
-  @ApiCookieAuth('refresh-token')
+  @ApiBody({ type: RefreshTokenBodyDto })
   @ApiOkResponse({ type: RefreshTokenResponse })
   async refresh(
     @Req() req: FastifyRequestJwtRefresh,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ): Promise<SignInResponse> {
-    const {
-      accessToken,
-      refreshToken,
-      accessTokenExpiresAt,
-      refreshTokenExpiresAt,
-    } = await this.authService.refresh(req.user.userId, req.user.sessionId);
+  ): Promise<RefreshTokenResponse> {
+    const data = await this.authService.refresh(
+      req.user.userId,
+      req.user.sessionId,
+    );
 
-    res.setCookie('refresh_token', refreshToken, {
-      ...COOKIE_OPTIONS,
-      expires: refreshTokenExpiresAt,
-    });
-    res.setCookie('access_token', accessToken, {
-      ...COOKIE_OPTIONS,
-      expires: accessTokenExpiresAt,
-    });
-
-    return { data: { accessToken, expiresAt: accessTokenExpiresAt } };
+    return { data };
   }
 
   @Post('sign-out')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessGuard)
   @ApiBearerAuth('access-token')
-  async signOut(
-    @Req() req: FastifyRequestJwtAccess,
-    @Res({ passthrough: true }) res: FastifyReply,
-  ) {
+  async signOut(@Req() req: FastifyRequestJwtAccess) {
     await this.authService.signOut(req.user.sessionId);
-    res.clearCookie('refresh_token', COOKIE_OPTIONS);
   }
 
   @Get('me')

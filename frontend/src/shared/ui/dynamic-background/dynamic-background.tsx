@@ -1,39 +1,43 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import classes from './dynamic-background.module.css';
 import { useImagePreload } from './use-image-preload';
 import { usePalette } from './use-palette';
-import { generateGradient } from './generate-gradient';
+import { generateAccentColor, generateGradient } from './generate-gradient';
+import clsx from 'clsx';
 
 export type TDynamicBackgroundProps = {
   src: string | null | undefined;
   enabled?: boolean;
-  darken?: boolean;
 };
 
 export const DynamicBackground: React.FC<TDynamicBackgroundProps> = ({
   src,
   enabled = true,
-  darken = true,
 }) => {
   const { img, isLoaded } = useImagePreload(src);
   const palette = usePalette(img);
+
+  useEffect(() => {
+    if (enabled) {
+      window.document.documentElement.style.background = `${generateGradient(palette)} ${generateAccentColor(palette.dark, 0.8)}`;
+    }
+
+    return () => {
+      window.document.documentElement.style.background = 'none';
+    };
+  }, [enabled, palette, isLoaded]);
 
   if (!enabled) return null;
 
   return (
     <div className={classes.container}>
       <div
-        className={classes.backdrop}
+        className={clsx(classes.backdrop, 'max-sm:hidden')}
         style={{
           backgroundImage: src ? `url(${src})` : 'none',
           opacity: isLoaded ? '0.5' : '0',
         }}
       />
-      <div
-        className={classes.gradientLayer}
-        style={{ background: generateGradient(palette) }}
-      />
-      {darken && <div className={classes.darkenLayer} />}
     </div>
   );
 };

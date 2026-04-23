@@ -1,7 +1,19 @@
-export const generateGradient = ({ vibrant, dark }: Palette): string => {
-  const rgba = ({ r, g, b }: RGB, a: number) => `rgba(${r}, ${g}, ${b}, ${a})`;
+import { RGB } from './types';
 
-  // Вибрантный цвет чуть приглушаем (60%), но не убиваем
+export const rgba = ({ r, g, b }: RGB, a: number = 1) =>
+  `rgba(${r}, ${g}, ${b}, ${a})`;
+
+export const generateAccentColor = (color: RGB, a: number = 1) => {
+  const accent = {
+    r: Math.round(color.r * a),
+    g: Math.round(color.g * a),
+    b: Math.round(color.b * a),
+  };
+
+  return rgba(accent);
+};
+
+export const generateGradient = ({ vibrant, dark }: Palette): string => {
   const accent = {
     r: Math.round(vibrant.r * 0.6),
     g: Math.round(vibrant.g * 0.6),
@@ -10,9 +22,9 @@ export const generateGradient = ({ vibrant, dark }: Palette): string => {
 
   return `linear-gradient(
     135deg,
-    ${rgba(accent, 0.85)} 0%,
-    ${rgba(accent, 0.6)} 40%,
-    ${rgba(dark, 0.7)} 75%,
-    ${rgba(dark, 0.95)} 100%
+    ${generateAccentColor(accent, 0.85)} 0%,
+    ${generateAccentColor(accent, 0.6)} 40%,
+    ${generateAccentColor(dark, 0.95)} 75%,
+    ${generateAccentColor(dark, 0.7)} 100%
   )`;
 };

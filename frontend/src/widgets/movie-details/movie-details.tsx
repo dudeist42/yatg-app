@@ -86,18 +86,27 @@ export const MovieDetails = (props: TMovieDetailsProps) => {
   return (
     <>
       {movie && <title>{`${movie.title} | YATG`}</title>}
-      {movie && <DynamicBackground src={backdropPath} darken={false} />}
-      <div className="p-4 relative text-white">
-        <div className="flex flex-row gap-12">
+      {movie && <DynamicBackground src={backdropPath} />}
+      <div className="p-4 mb-30 relative text-white">
+        <div className="flex flex-row max-sm:flex-col gap-12 max-sm:gap-6">
           <MoviePoster
+            className="max-sm:self-center"
             loading={movieQuery.isLoading}
             path={movie?.posterPath}
             size="xl"
           />
-          <div className="flex flex-col gap-1">
-            <span className="text-lg font-light">{releaseYear}</span>
-            <span className="text-7xl font-bold">{movie?.title}</span>
-            <span className="text-2xl font-bold">{movie?.tagline}</span>
+          <div className="flex flex-col max-sm:items-center max-sm:text-center gap-1">
+            <div className="flex flex-col max-sm:text-center max-sm:gap-3">
+              <span className="text-lg max-sm:text-md font-light">
+                {releaseYear}
+              </span>
+              <span className="text-7xl max-sm:text-4xl font-bold">
+                {movie?.title}
+              </span>
+              <span className="text-2xl max-sm:text-xl font-bold">
+                {movie?.tagline}
+              </span>
+            </div>
 
             <div className="flex flex-row items-center mt-4 text-xl font-light">
               <span className="text-lg">
@@ -110,7 +119,7 @@ export const MovieDetails = (props: TMovieDetailsProps) => {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col gap-5 mt-10">
+            <div className="flex flex-col max-sm:flex-row gap-5 mt-10">
               {movie?.userWatchedAt && (
                 <Button
                   variant="outline"
@@ -145,7 +154,7 @@ export const MovieDetails = (props: TMovieDetailsProps) => {
             </div>
           </div>
         </div>
-        <div className="mt-8 flex flex-col gap-4 max-w-4xl">
+        <div className="mt-15 flex flex-col gap-4 max-w-4xl">
           <span className="text-2xl font-bold">Overview</span>
           <span className="text-xl">{movie?.overview}</span>
         </div>

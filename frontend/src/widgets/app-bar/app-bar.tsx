@@ -5,6 +5,7 @@ import { SearchField, type SearchFieldProps } from '@heroui/react/search-field';
 import { useQuery } from '@tanstack/react-query';
 import { meQueries } from '@/entities/me/api';
 import { MoviesSearchModal } from '@/features/search-movie';
+import { Button } from '@heroui/react/button';
 
 export type TAppBarProps = {
   variant?: SearchFieldProps['variant'];
@@ -23,7 +24,7 @@ export const AppBar = ({ variant }: TAppBarProps) => {
   };
 
   return (
-    <div className="flex px-3 py-3 items-center justify-between w-full">
+    <div className="flex px-3 py-3 items-center w-full gap-3 relative z-1">
       <Link
         href="/"
         prefetch={false}
@@ -31,9 +32,9 @@ export const AppBar = ({ variant }: TAppBarProps) => {
       >
         YATG
       </Link>
-      <div>
+      <div className="w-full flex justify-center max-sm:justify-end">
         <button
-          className="cursor-pointer focus-visible:outline-none focus-visible:focus-ring rounded-xl"
+          className="cursor-pointer focus-visible:outline-none focus-visible:focus-ring rounded-xl max-sm:hidden"
           aria-label="open search"
           onClick={openSearch}
         >
@@ -54,6 +55,15 @@ export const AppBar = ({ variant }: TAppBarProps) => {
             </SearchField.Group>
           </SearchField>
         </button>
+        <Button
+          className="hidden max-sm:block"
+          aria-label="open search"
+          size="sm"
+          variant="ghost"
+          onClick={openSearch}
+        >
+          <SearchField.SearchIcon />
+        </Button>
         <MoviesSearchModal isOpen={isSearchOpen} onClose={closeSearch} />
       </div>
       <div>{data?.username}</div>

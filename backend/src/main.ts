@@ -13,7 +13,6 @@ import {
 import { SwaggerModule } from '@nestjs/swagger';
 import { getLogLevels } from './common/utils/logger.utils';
 import { useContainer } from 'class-validator';
-import fastifyCookie from '@fastify/cookie';
 import { openApiConfig } from '../configs/openApi';
 import { camelCaseToWords } from './common/utils/string.utils';
 import { formatErrors } from './common/utils/validation.utils';
@@ -56,10 +55,6 @@ async function createMainApp() {
       },
     }),
   );
-
-  await app.register(fastifyCookie, {
-    secret: process.env.COOKIE_SECRET,
-  });
 
   if (process.env.NODE_ENV === 'development') {
     useSwaggerModule(app);

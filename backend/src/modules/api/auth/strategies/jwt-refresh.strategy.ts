@@ -7,6 +7,15 @@ import { JwtPayload } from './types';
 import { type FastifyRequest } from 'fastify';
 import { SessionsRepository } from '../../sessions/sessions.repository';
 
+const extractRefreshTokenFromBody = (req: FastifyRequest): string | null => {
+  return req.body &&
+    typeof req.body === 'object' &&
+    'refreshToken' in req.body &&
+    typeof req.body.refreshToken === 'string'
+    ? req.body.refreshToken
+    : null;
+};
+
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -18,9 +27,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     private sessionsRepository: SessionsRepository,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: FastifyRequest) => req.cookies?.['refresh_token'] ?? null,
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([extractRefreshTokenFromBody]),
       ignoreExpiration: false,
       secretOrKey: config.jwtRefreshSecret,
     });

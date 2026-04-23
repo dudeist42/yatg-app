@@ -7,5 +7,7 @@ export type TSignInBodyDto = {
 
 export type TSignInResponse = TResponse<{
   accessToken: string;
-  expiresAt: Date;
+  refreshToken: string;
+  accessTokenExpiresAt: Date;
+  refreshTokenExpiresAt: Date;
 }>

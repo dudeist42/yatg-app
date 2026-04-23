@@ -57,7 +57,7 @@ export default async function MoviePage({ params }: TMoviePageProps) {
 
   return (
     <HydrationBoundary state={dehydrate(client)}>
-      <div className="page">
+      <div>
         <AppBar />
         <MovieDetails movieId={Number(movieId)} />
       </div>

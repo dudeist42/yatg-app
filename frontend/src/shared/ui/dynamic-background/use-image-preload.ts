@@ -30,7 +30,6 @@ export const useImagePreload = (
     prevSrcRef.current = src;
 
     const image = new Image();
-    image.crossOrigin = 'anonymous';
 
     const onLoad = () => {
       if (isMountedRef.current) setResult({ img: image, isLoaded: true });

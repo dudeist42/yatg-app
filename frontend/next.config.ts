@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['192.168.1.*'],
   experimental: {
     optimizePackageImports: ['@phosphor-icons/react'],
   },
@@ -8,7 +9,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/tmdb-image/:path*',
-        destination: 'https://image.tmdb.org/t/p/:path*',
+        destination: `${process.env.NEXT_PUBLIC_TMDB_IMAGE_BASE_URL}/t/p/:path*`,
       },
     ];
   },

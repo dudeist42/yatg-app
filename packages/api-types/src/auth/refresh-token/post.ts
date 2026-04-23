@@ -1,11 +1,10 @@
 import type { TResponse } from "../../shared/generic.response";
 
-export type TSignUpBodyDto = {
-  username: string;
-  password: string;
+export type TRefreshTokenBodyDto = {
+  refreshToken: string;
 }
 
-export type TSignUpReponse = TResponse<{
+export type TRefreshTokenResponse = TResponse<{
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAt: Date;

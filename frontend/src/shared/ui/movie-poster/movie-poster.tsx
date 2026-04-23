@@ -23,6 +23,7 @@ export type TMoviePosterProps = {
   width?: number;
   height?: number;
   loading?: boolean;
+  className?: string;
 };
 
 const calcSize = ({
@@ -49,6 +50,7 @@ export const MoviePoster = ({
   width,
   height,
   loading,
+  className,
 }: TMoviePosterProps) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const posterWidth = PosterSize[size];
@@ -65,7 +67,10 @@ export const MoviePoster = ({
 
   return (
     <div
-      className="relative rounded-xl shrink-0 grow-0 overflow-hidden"
+      className={clsx(
+        'relative rounded-xl shrink-0 grow-0 overflow-hidden',
+        className,
+      )}
       style={{ width: w, height: h }}
     >
       {showImg && (

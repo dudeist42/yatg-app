@@ -1,22 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { TRefreshTokenResponse } from '@yatg-app/api-types';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
+  const cookiesStore = await cookies();
   const backendResponse = await fetch(
     `${process.env.API_URL}/api/v1/auth/refresh`,
     {
       headers: {
-        Cookie: req.headers.get('cookie') ?? '',
+        'Content-Type': 'application/json',
       },
       method: 'POST',
+      body: JSON.stringify({
+        refreshToken: cookiesStore.get('refresh_token')?.value,
+      }),
     },
   );
 
-  const data = await backendResponse.json();
-  const response = NextResponse.json(data, { status: backendResponse.status });
+  const responseBody = await backendResponse.json();
+  const response = NextResponse.json(
+    backendResponse.status === 200 ? { succes: true } : responseBody,
+    { status: backendResponse.status },
+  );
 
-  backendResponse.headers.getSetCookie().forEach((cookie) => {
-    response.headers.append('set-cookie', cookie);
-  });
+  if (backendResponse.status === 200) {
+    const body = responseBody as TRefreshTokenResponse;
+    cookiesStore.set('access_token', body.data.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      expires: new Date(body.data.accessTokenExpiresAt),
+    });
+    cookiesStore.set('refresh_token', body.data.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      expires: new Date(body.data.refreshTokenExpiresAt),
+    });
+  }
 
   return response;
 }

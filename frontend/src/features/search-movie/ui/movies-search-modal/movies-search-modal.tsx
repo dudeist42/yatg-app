@@ -50,7 +50,10 @@ export const MoviesSearchModal = ({
   return (
     <Modal.Backdrop isOpen={isOpen} onOpenChange={handleOpenChange}>
       <Modal.Container placement="top">
-        <Modal.Dialog aria-label="Search movies" className="max-w-[768px] p-0">
+        <Modal.Dialog
+          aria-label="Search movies"
+          className="max-w-[768px] max-sm:max-h-[max(85vh,50px)] p-0"
+        >
           <Modal.Body className="flex flex-col">
             <div className="py-4 flex flex-col overflow-hidden">
               <div className="px-4">
@@ -67,7 +70,7 @@ export const MoviesSearchModal = ({
                       className="text-xl"
                       placeholder="What are you searching for?"
                     />
-                    <Kbd>
+                    <Kbd className="max-sm:hidden">
                       <Kbd.Content>ESC</Kbd.Content>
                     </Kbd>
                   </SearchField.Group>
