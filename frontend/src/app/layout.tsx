@@ -1,9 +1,10 @@
 'use server';
 import type { Metadata, Viewport } from 'next';
-import { headers } from 'next/headers';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Providers from './providers';
 import './globals.css';
+import { Suspense } from 'react';
+import { ApplyTheme } from '@/shared/lib/theme/apply-theme';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,20 +39,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const h = await headers();
-
-  const theme = h.get('x-theme');
-
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      data-theme={theme}
       suppressHydrationWarning
     >
-      <head>
-        <meta name="theme-color" content="#fff" />
-      </head>
+      <Suspense>
+        <ApplyTheme />
+      </Suspense>
       <body>
         <Providers>{children}</Providers>
       </body>

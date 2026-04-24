@@ -1,45 +1,49 @@
-import { TRefreshTokenResponse } from '@yatg-app/api-types';
+import { setTokenCookies } from '@/features/sign-by-username/lib/cookies';
+import { refreshToken as refreshTokenRequest } from '@/features/sign-by-username/model/api';
+import { AxiosError } from 'axios';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST() {
   const cookiesStore = await cookies();
-  const backendResponse = await fetch(
-    `${process.env.API_URL}/api/v1/auth/refresh`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify({
-        refreshToken: cookiesStore.get('refresh_token')?.value,
-      }),
-    },
-  );
 
-  const responseBody = await backendResponse.json();
-  const response = NextResponse.json(
-    backendResponse.status === 200 ? { succes: true } : responseBody,
-    { status: backendResponse.status },
-  );
+  const refreshToken = cookiesStore.get('refresh_token')?.value;
 
-  if (backendResponse.status === 200) {
-    const body = responseBody as TRefreshTokenResponse;
-    cookiesStore.set('access_token', body.data.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      expires: new Date(body.data.accessTokenExpiresAt),
-    });
-    cookiesStore.set('refresh_token', body.data.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      expires: new Date(body.data.refreshTokenExpiresAt),
-    });
+  if (!refreshToken) {
+    return NextResponse.json(
+      { status: 401, data: { message: 'Unauthorized' } },
+      { status: 401 },
+    );
   }
 
-  return response;
+  try {
+    const backendResponse = await refreshTokenRequest({ refreshToken });
+
+    await setTokenCookies(backendResponse);
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      return NextResponse.json(
+        {
+          status: e.status ?? 500,
+          data: e.response?.data?.data ??
+            e.response?.data ?? {
+              message: e.message ?? 'Server error',
+            },
+        },
+        { status: e.status ?? 500 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        status: 500,
+        data: {
+          message: 'Unknown error',
+        },
+      },
+      { status: 500 },
+    );
+  }
 }

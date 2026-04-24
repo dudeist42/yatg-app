@@ -1,3 +1,4 @@
+'use client';
 import { type IconWeight } from '@phosphor-icons/react';
 import { StarIcon } from '@phosphor-icons/react/Star';
 import {

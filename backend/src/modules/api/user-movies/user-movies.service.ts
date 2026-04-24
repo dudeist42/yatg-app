@@ -52,10 +52,10 @@ export class UserMoviesService {
     body: UpsertUserMovieBodyDto,
   ) {
     await this.drizzleService.db.transaction(async (tx) => {
-      const movie = await this.moviesRepository.findMovieById(movieId);
+      const movie = await this.moviesRepository.findMovieById(movieId, tx);
 
       if (!movie) {
-        await this.syncMovie(movieId);
+        await this.syncMovie(movieId, tx);
       }
 
       await this.userMoviesRepository.upsertWatched(

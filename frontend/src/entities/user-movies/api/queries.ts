@@ -27,6 +27,7 @@ export const getAllInfiniteQueryOptions = (
   });
 
 export const upsertWatchedMutation = mutationOptions({
+  mutationKey: ['movies/watchMovie'],
   mutationFn: ({
     params,
     body,
@@ -69,6 +70,7 @@ export const upsertWatchedMutation = mutationOptions({
 });
 
 export const deleteWatchedMutation = mutationOptions({
+  mutationKey: ['movies/unwatchMovie'],
   mutationFn: deleteWatched,
   onMutate(variables, context) {
     const queryKey = moviesKeys.getById({ id: variables.movieId });

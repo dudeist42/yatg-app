@@ -14,7 +14,7 @@ export const SignUpForm = () => {
     string,
     string[]
   > | null>(null);
-  const [state, signUpAction] = useActionState(authActions.signUp, {
+  const [state, signUpAction, isPending] = useActionState(authActions.signUp, {
     status: null,
   });
 
@@ -80,7 +80,12 @@ export const SignUpForm = () => {
           {!state.data?.errors && !!state.data?.message && (
             <span className="text-red-500">{state.data.message}</span>
           )}
-          <Button variant="primary" type="submit" className="mt-2">
+          <Button
+            variant="primary"
+            type="submit"
+            className="mt-2"
+            isPending={isPending}
+          >
             Sign Up
           </Button>
         </Form>

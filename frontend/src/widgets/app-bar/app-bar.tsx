@@ -1,88 +1,36 @@
-'use client';
-import { useState } from 'react';
-import Link from 'next/link';
-import { SearchField, type SearchFieldProps } from '@heroui/react/search-field';
-import { useQuery } from '@tanstack/react-query';
-import { meQueries } from '@/entities/me/api';
-import { MoviesSearchModal } from '@/features/search-movie';
-import { Button } from '@heroui/react/button';
-import { UserIcon } from '@phosphor-icons/react/User';
-import { Dropdown, Label } from '@heroui/react';
-import { useSignOut } from '@/features/sign-out';
+import { UserInfo } from './ui/user-info/user-info';
+import {
+  SearchButton,
+  TSearchButtonProps,
+} from './ui/search-button/search-button';
+import { HomeLink } from './ui/home-link/home-link';
+import classes from './app-bar.module.css';
+import { getQueryClient } from '@/shared/lib/query-client';
+import { meQueries } from '@/entities/me';
+import { getIsClientNavigation } from '@/shared/lib/ssr';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export type TAppBarProps = {
-  variant?: SearchFieldProps['variant'];
+  searchButtonProps?: TSearchButtonProps;
 };
 
-export const AppBar = ({ variant }: TAppBarProps) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { data } = useQuery(meQueries.getMeQueryOptions);
-  const { signOut, isPending: isSignOutPending } = useSignOut();
+export const AppBar = async ({ searchButtonProps }: TAppBarProps) => {
+  const queryClient = getQueryClient();
+  const isClientNavigation = await getIsClientNavigation();
 
-  const openSearch = () => {
-    setIsSearchOpen(true);
-  };
-
-  const closeSearch = () => {
-    setIsSearchOpen(false);
-  };
+  if (!isClientNavigation) {
+    await queryClient.prefetchQuery(meQueries.getMeQueryOptions);
+  }
 
   return (
-    <div className="flex px-3 py-3 items-center w-full gap-3 relative z-1">
-      <Link
-        href="/"
-        prefetch={false}
-        className="font-medium text-xl focus-visible:focus-field-ring"
-      >
-        YATG
-      </Link>
-      <div className="w-full flex justify-center max-sm:justify-end">
-        <button
-          className="cursor-pointer focus-visible:outline-none focus-visible:focus-ring rounded-xl max-sm:hidden"
-          aria-label="open search"
-          onClick={openSearch}
-        >
-          <SearchField
-            className="pointer-events-none"
-            aria-hidden="true"
-            aria-label="search"
-            variant={variant}
-          >
-            <SearchField.Group>
-              <SearchField.SearchIcon />
-              <SearchField.Input
-                tabIndex={-1}
-                className="w-70"
-                placeholder="Search..."
-                aria-hidden="true"
-              />
-            </SearchField.Group>
-          </SearchField>
-        </button>
-        <Button
-          className="hidden max-sm:block"
-          aria-label="open search"
-          size="sm"
-          variant="ghost"
-          onClick={openSearch}
-        >
-          <SearchField.SearchIcon />
-        </Button>
-        <MoviesSearchModal isOpen={isSearchOpen} onClose={closeSearch} />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className={classes.root}>
+        <HomeLink />
+        <div className={classes.search}>
+          <SearchButton {...searchButtonProps} />
+        </div>
+        <UserInfo />
       </div>
-      <Dropdown>
-        <Button variant="ghost">
-          <UserIcon />
-          {data?.username}
-        </Button>
-        <Dropdown.Popover>
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={signOut} isDisabled={isSignOutPending}>
-              <Label>Sign out</Label>
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown.Popover>
-      </Dropdown>
-    </div>
+    </HydrationBoundary>
   );
 };

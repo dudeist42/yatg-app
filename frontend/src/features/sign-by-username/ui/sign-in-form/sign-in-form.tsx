@@ -11,7 +11,7 @@ import {
 import { authActions } from '../../model';
 
 export const SignInForm = () => {
-  const [state, formAction] = useActionState(authActions.signIn, {
+  const [state, formAction, isPending] = useActionState(authActions.signIn, {
     status: null,
   });
 
@@ -42,7 +42,12 @@ export const SignInForm = () => {
           {!state.data?.errors && !!state.data?.message && (
             <span className="text-red-500">{state.data.message}</span>
           )}
-          <Button variant="primary" type="submit" className="mt-2">
+          <Button
+            variant="primary"
+            type="submit"
+            className="mt-2"
+            isPending={isPending}
+          >
             Sign In
           </Button>
         </Form>

@@ -1,0 +1,6 @@
+@reference '#globals.css';
+
+.button {
+  --color-default: var(--color-gray-600);
+  --border: var(--color-white);
+}

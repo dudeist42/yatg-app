@@ -101,6 +101,7 @@ export const MoviesSearchModal = ({
                         key={movie.id}
                         as={Link}
                         href={`/movie/${movie.id}`}
+                        onNavigate={onClose}
                         movie={movie}
                         prefetch={false}
                         className="hover:bg-gray-400/20"

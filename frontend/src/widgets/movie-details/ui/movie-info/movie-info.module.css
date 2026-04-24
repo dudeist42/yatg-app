@@ -1,0 +1,15 @@
+@reference '#globals.css';
+
+.genres {
+  @apply flex flex-row items-center leading-none;
+
+  & span:not(:last-child)::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1rem;
+    margin-left: 8px;
+    margin-right: 8px;
+    background: white;
+  }
+}

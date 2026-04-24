@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect } from 'react';
 import classes from './dynamic-background.module.css';
 import { useImagePreload } from './use-image-preload';

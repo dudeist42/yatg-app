@@ -1,3 +1,4 @@
+'use client';
 import { ComponentProps, ElementType } from 'react';
 import clsx from 'clsx';
 import { Skeleton } from '@heroui/react/skeleton';

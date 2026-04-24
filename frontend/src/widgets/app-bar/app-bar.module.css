@@ -1,0 +1,9 @@
+@reference '#globals.css';
+
+.root {
+  @apply flex px-3 py-3 items-center w-full gap-3 relative z-1;
+}
+
+.search {
+  @apply w-full flex justify-center max-sm:justify-end;
+}
