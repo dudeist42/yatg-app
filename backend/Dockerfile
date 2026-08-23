@@ -35,7 +35,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY backend/package.json ./backend/package.json
 COPY packages/api-types ./packages/api-types
 
-RUN pnpm install --frozen-lockfile --filter @yatg-app/backend
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --filter @yatg-app/backend
 
 COPY backend ./backend
 
@@ -48,6 +49,9 @@ FROM base AS production
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs
 
+COPY --from=builder --chown=nodejs:nodejs /app/package.json /app/package.json
+COPY --from=builder --chown=nodejs:nodejs /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
+COPY --from=builder --chown=nodejs:nodejs /app/packages/api-types /app/packages/api-types
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/backend/node_modules /app/backend/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/backend/dist /app/backend/dist
