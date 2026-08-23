@@ -49,16 +49,11 @@ FROM base AS production
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 -G nodejs
 
-COPY --from=builder --chown=nodejs:nodejs /app/package.json /app/package.json
-COPY --from=builder --chown=nodejs:nodejs /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
-COPY --from=builder --chown=nodejs:nodejs /app/packages/api-types /app/packages/api-types
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/backend/node_modules /app/backend/node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/backend/dist /app/backend/dist
 COPY --from=builder --chown=nodejs:nodejs /app/backend/package.json /app/backend/package.json
 COPY --from=builder --chown=nodejs:nodejs /app/backend/drizzle /app/backend/drizzle
-
-RUN chown nodejs:nodejs /app
 
 WORKDIR /app/backend
 
@@ -66,4 +61,4 @@ USER nodejs
 EXPOSE $PORT
 EXPOSE $HEALTH_PORT
 
-CMD ["sh", "-c", "pnpm drizzle:migrate:prod && node dist/main"]
+CMD ["sh", "-c", "node dist/main"]
