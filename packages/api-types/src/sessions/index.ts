@@ -1,2 +1,2 @@
-export * from './:id';
+export * from './[id]';
 export * from './get';

@@ -1,2 +1,2 @@
-export * from './:movieId';
+export * from './[movieId]';
 export * from './get';
