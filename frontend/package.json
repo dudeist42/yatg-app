@@ -17,25 +17,25 @@
     "@heroui/styles": "^3.0.2",
     "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-query": "^5.99.0",
-    "axios": "^1.14.0",
+    "axios": "^1.19.0",
     "clsx": "^2.1.1",
-    "next": "16.2.2",
+    "next": "^16.3.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "use-debounce": "^10.1.1"
   },
   "devDependencies": {
-    "@yatg-app/api-types": "workspace:*",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.2.2",
     "@tanstack/eslint-plugin-query": "^5.99.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@types/node": "^20.19.39",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@yatg-app/api-types": "workspace:*",
+    "eslint": "^9.39.4",
     "eslint-config-next": "16.2.2",
     "eslint-plugin-prettier": "^5.5.5",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
   },
   "imports": {
     "#globals.css": "./src/app/globals.css"

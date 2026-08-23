@@ -13,7 +13,7 @@ ENV HEALTH_PORT=3001
 FROM base AS development
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY backend/package.json ./backend/
+COPY backend/package.json ./backend/package.json
 COPY packages/api-types/ ./packages/api-types
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
@@ -32,7 +32,7 @@ CMD ["sh", "-c", "pnpm drizzle:migrate:dev && pnpm start:dev"]
 FROM base AS builder
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY backend/package.json ./backend/
+COPY backend/package.json ./backend/package.json
 COPY packages/api-types ./packages/api-types
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \

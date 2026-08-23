@@ -96,3 +96,22 @@ prod-logs:
 
 prod-build:
 	$(PROD_COMPOSE_ALL) up -d --build
+
+	# === PRODUCTION BACKEND ===
+prod-up-be:
+	$(PROD_COMPOSE_BE) up -d
+
+prod-down-be:
+	$(PROD_COMPOSE_BE) down
+
+prod-clean-be:
+	$(PROD_COMPOSE_BE) down -v
+
+prod-logs-be:
+	$(PROD_COMPOSE_BE) logs -f
+
+prod-build-be:
+	$(PROD_COMPOSE_BE) up -d --build
+
+prod-rebuild-be:
+	$(PROD_COMPOSE_BE) up -d --build --force-recreate
