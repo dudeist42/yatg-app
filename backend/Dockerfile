@@ -35,8 +35,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY backend/package.json ./backend/package.json
 COPY packages/api-types ./packages/api-types
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter @yatg-app/backend
+RUN pnpm install --frozen-lockfile --filter @yatg-app/backend
 
 COPY backend ./backend
 
