@@ -35,7 +35,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY backend/package.json ./backend/package.json
 COPY packages/api-types ./packages/api-types
 
-RUN pnpm install --frozen-lockfile --filter @yatg-app/backend
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --filter @yatg-app/backend
 
 COPY backend ./backend
 
@@ -56,6 +57,8 @@ COPY --from=builder --chown=nodejs:nodejs /app/backend/node_modules /app/backend
 COPY --from=builder --chown=nodejs:nodejs /app/backend/dist /app/backend/dist
 COPY --from=builder --chown=nodejs:nodejs /app/backend/package.json /app/backend/package.json
 COPY --from=builder --chown=nodejs:nodejs /app/backend/drizzle /app/backend/drizzle
+
+RUN chown nodejs:nodejs /app
 
 WORKDIR /app/backend
 
